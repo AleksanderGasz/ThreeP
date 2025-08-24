@@ -1,0 +1,213 @@
+﻿@namespace Mac.Modules.Errors
+
+<style>
+    .mac-blue {
+        color: dodgerblue;
+    }
+
+    .mac-white {
+        color: white;
+    }
+
+    .mac-red {
+        color: crimson;
+    }
+
+    .mac-gold {
+        color: #a4773e;
+    }
+
+    .container {
+        font: 400 14px 'Roboto', sans-serif;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        width: 100%;
+        height: 100vh;
+        padding-top: 10vh;
+        background-color: #27272f;
+    }
+
+    .error-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 2rem;
+        align-items: flex-start;
+        width: 75%;
+        height: auto;
+        border: 2px solid crimson;
+        border-radius: 10px;
+        padding: 25px;
+        position: relative;
+    }
+
+    .error__header {
+        font-size: 1.5rem;
+    }
+    
+    .error__body {
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+    }
+
+    .error__message {
+        margin-top: 1rem;
+        /*color: dodgerblue;*/
+    }
+
+    .error__stack-trace{
+        margin-top: 1rem;
+    }
+    .error__stack-trace pre {
+        /*width: 85%;*/
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        background: #1e1e1e;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .close-button {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: white;
+        background: none;
+        border: none;
+    }
+
+    .error__footer{
+        width: 100%;
+        display: flex;
+        flex-grow: 1;
+        justify-content: flex-end;
+    }
+    
+    .recover-button, .copy-button {
+        margin-top: 10px;
+        margin-left: 1rem;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .recover-button {
+        background-color: #a4773e;
+        color: white;
+        border: none;
+    }
+
+    .copy-button {
+        background-color: #555;
+        color: white;
+        border: none;
+    }
+</style>
+
+@if (Context is not null && showError)
+{
+    <div class="container mac-white">
+        <div class="error-container">
+            <button class="close-button" @onclick="CloseError">✖</button>
+
+            <div class="error__header mac-gold">
+                <p>@Context.GetType().Name</p>
+            </div>
+
+            <div class="error__body mac-blue">
+                @* <p><strong>Environment:</strong> @context.Data?["Environment"]</p> *@
+                <p class="mac-red">
+                    <strong>Environment:</strong> @Environment.EnvironmentName
+                </p>
+                <p>
+                    <strong>Source:</strong> @Context.Source
+                </p>
+                <p>
+                    <strong>TargetSite:</strong> @Context.TargetSite
+                </p>
+                <p>
+                    <strong>HResult:</strong> @Context.HResult
+                </p>
+
+                @if (!string.IsNullOrEmpty(Context.HelpLink))
+                {
+                    <p>
+                        <strong>Help:</strong> <a href="@Context.HelpLink">@Context.HelpLink</a>
+                    </p>
+                }
+                <div class="error__message mac-white">
+                    <p>
+                        <strong>Message:</strong> @Context.Message
+                    </p>
+                </div>
+
+                <div class="error__stack-trace mac-white">
+                    <p>
+                        <strong>Stack trace:</strong>
+                    </p>
+                    <pre style="margin-top: 10px;">@Context.StackTrace</pre>
+                </div>
+
+                @if (Context.InnerException is not null)
+                {
+                    <div class="error__inner-exception">
+                        <p>
+                            <strong>Inner Exception:</strong> @Context.InnerException.Message
+                        </p>
+                        <pre>@Context.InnerException.StackTrace</pre>
+                    </div>
+                }
+            </div>
+
+            <div class="error__footer">
+                <button class="copy-button" @onclick="CopyErrorDetails">Skopiuj szczegóły błędu</button>
+                <button class="recover-button" @onclick="OnRecover">Odśwież</button>
+                <button class="recover-button" @onclick="NavigateToMain">Strona główna</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Inject] IJSRuntime JS { get; set; }
+
+    // [Inject] IHostEnvironment Environment { get; set; }
+    [Inject] IWebHostEnvironment Environment { get; set; }
+    [Inject] public NavigationManager NavigationManager { get; set; }
+    [Parameter] public Exception? Context { get; set; }
+    [Parameter] public EventCallback OnRecover { get; set; }
+    bool showError = true;
+
+
+    void CloseError()
+    {
+        showError = false;
+    }
+
+
+    private async Task CopyErrorDetails()
+    {
+        var errorText = $"Error: {Context?.Message}\n" +
+                        $"Source: {Context?.Source}\n" +
+                        $"StackTrace:\n{Context?.StackTrace}";
+
+        if (Context?.InnerException is not null)
+        {
+            errorText += $"\n\nInner Exception:\n{Context.InnerException.Message}\n{Context.InnerException.StackTrace}";
+        }
+
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", errorText);
+    }
+
+
+    void NavigateToMain()
+    {
+        NavigationManager.NavigateTo("/", true);
+    }
+}

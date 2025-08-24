@@ -1,0 +1,27 @@
+﻿<MudNavMenu Class=" d-flex flex-column flex-grow-1 justify-space-between pt-5 ">
+    <div>
+        <MudNavLink Href="/" Match="NavLinkMatch.All">Główna</MudNavLink>
+        @* <MudNavLink Href="/olx/callback" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Link" IconColor="Color.Primary">Callback</MudNavLink> *@
+        <MudNavLink Href="/ekwipunek" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Backpack"
+                    IconColor="Color.Warning" ActiveClass="mud-warning-text">Ekwipunek
+        </MudNavLink>
+        <SectionOutlet SectionId="FiltersSection"/>
+    </div>
+
+
+    <div class="pe-4">
+        @*<MudNavGroup Title="Administracja" Expanded="true">
+            <MudNavLink Href="/admin/dashboard" Match="NavLinkMatch.Prefix">Panel</MudNavLink>
+        </MudNavGroup>*@
+        <MudNavLink Href="/settings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Settings"
+                    IconColor="Color.Warning" ActiveClass="mud-warning-text">Ustawienia
+        </MudNavLink>
+        <div class="my-2">
+            <Version Name="3P" By="Mac" />
+        </div>
+    </div>
+</MudNavMenu>
+
+@code{
+    public static readonly object? FiltersSection = new();
+}

@@ -1,0 +1,14 @@
+﻿@namespace Mac.Modules.Elements
+<MudElement HtmlTag="div">
+    <MudText Typo="@Typo" Color="@Color" Class="@($"mb-4 {Class}")" Style="@($"{OwnStyle} {Style})")">@Name</MudText>
+</MudElement>
+
+@code {
+    [Parameter] public string? Name { get; set; }
+    [Parameter] public Typo Typo { get; set; } = Typo.h5;
+    [Parameter] public bool Uppercase { get; set; }
+    [Parameter] public Color Color { get; set; } = Color.Default;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+    string OwnStyle => $" {(Uppercase ? "text-transform: uppercase;" : "")}";
+}

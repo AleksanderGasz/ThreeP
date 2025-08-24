@@ -1,0 +1,29 @@
+﻿@namespace Mac.Modules.Logo
+
+<MudElement HtmlTag="div" Class="@Class" Style="@Style">
+    <MudStack Row="Row" Justify="Justify.Center" AlignItems="AlignItems.Center">
+        @if (!string.IsNullOrWhiteSpace(ImgSrc))
+        {
+            <div>
+                <MudImage Src="@ImgSrc" Height="200" Width="200"/>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Text))
+        {
+            <div>
+                <MudText Color="Color" Typo="Typo">@Text</MudText>
+            </div>
+        }
+    </MudStack>
+</MudElement>
+
+
+@code {
+    [Parameter] public string? Text { get; set; }
+    [Parameter] public string? ImgSrc { get; set; }
+    [Parameter] public bool Row { get; set; } = true;
+    [Parameter] public Typo Typo { get; set; } = Typo.body1;
+    [Parameter] public Color Color { get; set; } = Color.Primary;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

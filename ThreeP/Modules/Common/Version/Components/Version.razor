@@ -1,0 +1,88 @@
+﻿@using System.Reflection
+@namespace Mac.Modules.Version
+@inject IConfiguration Configuration
+<div class="d-flex align-center justify-center">
+    <span class=" l-3 fw-lighter" style="font-size: 0.7rem">
+        @Name v. @version by &copy;@By @DateTime.Now.Year<br/>
+        @* @Name v.@version<br/> *@
+
+        @* REVISION *@
+        <span class="d-flex justify-end" style="font-style: italic; color:white;">
+
+            <span>
+                @($"{(assemblyRevision == "0" ? "" : (int.Parse(assemblyRevision) >= 100 ? $"rc {assemblyRevision.Substring(2)}" : $"dev {assemblyRevision}"))}")
+            </span>
+
+        </span>
+    </span>
+
+</div>
+
+
+@code {
+    [Parameter] public GetVersionFrom VersionFrom { get; set; } = GetVersionFrom.Assembly;
+    [Parameter] public string? Name { get; set; } = string.Empty;
+    [Parameter] public string? ManualVersion { get; set; } = string.Empty;
+    [Parameter] public string? By { get; set; } = string.Empty;
+
+    string? version;
+    bool isDebug;
+    string? assemblyVersion;
+    string? build;
+    string? appsettingVersion;
+    string? assemblyVersionAll;
+    string? assemblyMajor;
+    string? assemblyMinor;
+    string? assemblyBuild;
+    string? assemblyRevision;
+
+
+    protected override void OnInitialized()
+    {
+#if DEBUG
+        isDebug = true;
+#else
+        isDebug = false;
+#endif
+
+        _ = VersionFrom switch
+        {
+            GetVersionFrom.Assembly =>
+                assemblyVersionAll = Assembly.GetExecutingAssembly().GetName().Version.ToString(),
+            GetVersionFrom.Appsettings =>
+                appsettingVersion = Configuration?.GetChildren().FirstOrDefault(section => section.Key == "Version")?.Value ?? "",
+            _ => ""
+        };
+
+
+        var versionArray = assemblyVersionAll.Split('.').ToArray();
+        assemblyMajor = versionArray.ElementAtOrDefault(0) ?? "";
+        assemblyMinor = versionArray.ElementAtOrDefault(1) ?? "";
+        assemblyBuild = versionArray.ElementAtOrDefault(2) ?? "";
+        assemblyRevision = versionArray.ElementAtOrDefault(3) ?? "";
+
+        assemblyVersion = $"{assemblyMajor}.{assemblyMinor}.{assemblyBuild}";
+
+        version =
+            VersionFrom switch
+            {
+                GetVersionFrom.Appsettings =>
+                    appsettingVersion,
+                GetVersionFrom.Assembly =>
+                    assemblyVersion,
+                // $"{assemblyVersion}{(isDebug ? $".{assemblyRevision ?? ""}" : "")}",
+                GetVersionFrom.Manual =>
+                    ManualVersion,
+
+                _ => ""
+            };
+    }
+
+
+    public enum GetVersionFrom
+    {
+        Appsettings,
+        Assembly,
+        Manual
+    }
+}

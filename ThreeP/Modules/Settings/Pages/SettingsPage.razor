@@ -1,0 +1,71 @@
+﻿@page "/settings"
+@namespace Mac.Modules.UserSettings
+@attribute [Authorize]
+@* @inject IOptions<DevInfoOptions> DevInfoOptions *@
+
+@implements IDisposable
+
+
+<PageHeader Name="Ustawienia" Class="my-5"/>
+
+
+@if (AppState.Settings is null)
+{
+    <NoData/>
+}
+else
+{
+    <MudForm @ref="form" @bind-IsValid="success" @bind-Errors="@errors">
+
+        @* Save button *@
+        @*
+        <MudText Inline Align="Align.End" GutterBottom="true">
+            <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Success" OnClick="Save">
+                Zapisz
+            </MudButton>
+        </MudText>
+        *@
+
+        <MudExpansionPanels MultiExpansion>
+
+
+            <MacBox Name="Ogólne">
+                @* <MudExpansionPanel Text="Ogólne" Expanded="true"> *@
+
+                <MudSwitch @bind-Value="@AppState.Settings.DarkMode" Label="Tryb Ciemny"
+                           Color="Color.Primary"/>
+                @* </MudExpansionPanel> *@
+            </MacBox>
+
+
+        </MudExpansionPanels>
+    </MudForm>
+}
+
+
+@code {
+    [CascadingParameter] public AppState? AppState { get; set; }
+    // DevInfoOptions? options;
+    string?[] errors;
+    bool success;
+    MudForm? form;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            form.FieldChanged = EventCallback.Factory.Create<FormFieldChangedEventArgs>(this, OnFieldChanged);
+        }
+    }
+
+
+    async Task OnFieldChanged(FormFieldChangedEventArgs args) => await AppState.SaveSettings();
+
+    public void Dispose() => form.FieldChanged = EventCallback<FormFieldChangedEventArgs>.Empty;
+}

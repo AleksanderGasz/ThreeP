@@ -1,0 +1,83 @@
+﻿@namespace Mac.Modules.Identity
+
+@implements IDisposable
+@inject NavigationManager NavigationManager
+@inject IOptions<FeatureFlags> FeatureFlags
+
+<div class="d-flex ">
+    <AuthorizeView>
+        <Authorized>
+
+            <MudBreakpointProvider>
+
+                <MudChip T="string" Variant="Variant.Text" Color="Color.Success" Class=" d-none d-md-flex">
+                    <MudNavLink Href="Account/Manage" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person"
+                                Class="xs-account-icon-paddings">
+                        @context.User.Identity?.Name
+                    </MudNavLink>
+                </MudChip>
+
+                <MudChip T="string" Variant="Variant.Text" Color="Color.Success" Class="d-md-none">
+                    <MudNavLink Href="Account/Manage" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person"
+                                Class="xs-account-icon-paddings ">
+                    </MudNavLink>
+                </MudChip>
+
+
+                <form action="Account/Logout" method="post">
+                    <AntiforgeryToken/>
+                    <input type="hidden" name="returnUrl" value="@currentUrl"/>
+
+                    <MudFab ButtonType="ButtonType.Submit" Size="Size.Small" Color="Color.Inherit" DropShadow="false"
+                            IconSize="Size.Small" StartIcon="@Icons.Material.Filled.Logout" Style="margin-top: 2px;"
+                            Label="Wyloguj" Class="d-none d-md-flex"/>
+
+                    <MudFab ButtonType="ButtonType.Submit" Size="Size.Small" Color="Color.Inherit" DropShadow="false"
+                            IconSize="Size.Small" StartIcon="@Icons.Material.Filled.Logout" Class="d-md-none"
+                            Style="margin-top: 2px;"/>
+
+
+                </form>
+            </MudBreakpointProvider>
+
+        </Authorized>
+        <NotAuthorized>
+            @if (FeatureFlags.Value.RegisterVisible)
+            {
+                <MudNavLink Href="Account/Register" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">
+                    Zarejestruj
+                </MudNavLink>
+            }
+            <MudNavLink Href="Account/Login" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Password">
+                Zaloguj
+            </MudNavLink>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+
+@code {
+    // [Parameter] public Breakpoint Breakpoint { get; set; } = Breakpoint.Xs;
+
+    private string? currentUrl;
+
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

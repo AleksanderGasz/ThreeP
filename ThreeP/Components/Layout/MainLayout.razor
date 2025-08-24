@@ -1,9 +1,86 @@
 ﻿@inherits LayoutComponentBase
+@inject ProgressService ProgressService
+@implements IDisposable
 
-@Body
+<MudThemeProvider IsDarkMode="@(AppState?.Settings?.DarkMode ?? true)"/>
+<MudPopoverProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudLayout>
+
+    @* APPBAR *@
+    <MudAppBar>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                       OnClick="DrawerToggle"/>
+        @* LOGO *@
+        <Logo Text="3P" Typo="Typo.h6"  Color="Color.Warning" Style="width: 100px; "/>
+        
+        @* SECTION LEFT *@
+<SectionOutlet SectionId="HeaderLeftSection"></SectionOutlet>
+        
+        <MudSpacer/>
+
+        @* SECTION *@
+        <SectionOutlet SectionId="HeaderRightSection"/>
+
+        @* PROGRESS *@
+        @if (ProgressService.IsLoading)
+        {
+            <MudProgressCircular Color="Color.Warning" Indeterminate="true" Size="Size.Small" Class="mx-4"/>
+        }
+
+        @* LOGIN *@
+        <LoginSSRComp/>
+
+        @* DARK MODE *@
+        @if (AppState?.Settings is not null)
+        {
+            <MudToggleIconButton Toggled="AppState.Settings.DarkMode" ToggledChanged="DarkModeChanged"
+                                 Color="Color.Dark"
+                                 ToggledColor="Color.Warning"
+                                 ToggledIcon="@Icons.Material.Filled.WbSunny" Icon="@Icons.Material.Filled.DarkMode"/>
+        }
+    </MudAppBar>
+
+    @* NAV *@
+    <MudDrawer @bind-Open="@drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2" Width="300px">
+        <Nav/>
+    </MudDrawer>
+
+    @* MAIN *@
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="mt-10">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+
+</MudLayout>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+
+@code{
+    [CascadingParameter] public AppState AppState { get; set; }
+    public static object? HeaderRightSection  = new();
+    public static object? HeaderLeftSection = new();
+    bool drawerOpen = true;
+
+    void DrawerToggle() => drawerOpen = !drawerOpen;
+
+
+    protected override async Task OnInitializedAsync()=> ProgressService.OnProgressChanged += StateHasChanged;
+
+
+    async Task DarkModeChanged(bool darkMode)
+    {
+        AppState.Settings.DarkMode = darkMode;
+        await AppState.SaveSettings();
+    }
+
+    public void Dispose()=>ProgressService.OnProgressChanged -= StateHasChanged;
+}

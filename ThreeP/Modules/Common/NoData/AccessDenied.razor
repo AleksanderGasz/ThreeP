@@ -1,0 +1,15 @@
+﻿@page "/access-denied"
+
+@* <MudContainer MaxWidth="MaxWidth.Small"> *@
+<div class="d-flex justify-center align-center" style="height: 75vh;">
+
+    <MudPaper Elevation="8" Width="50%" Height="30vh" Class="d-flex flex-column justify-center align-center">
+        <MudAvatar Class="mb-5" Color="Color.Secondary">!</MudAvatar>
+        <MudText Class="mb-5" Style="text-transform: uppercase" Typo="Typo.body2"Color="Color.Error">Nie masz uprawnień do tej strony</MudText>
+        <MudLink Href="/" Typo="Typo.caption"Color="Color.Info">Wróć na stronę główną</MudLink>
+    </MudPaper>
+</div>
+@* </MudContainer> *@
+
+@code {
+}

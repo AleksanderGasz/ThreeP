@@ -1,0 +1,72 @@
+﻿@namespace Mac.Modules.Elements
+
+@*<style>
+    .mac-expand-panel-display-none .mud-expand-panel-header {
+        display: none;
+    }
+</style>*@
+
+<MudPaper Outlined="@Outlined" Elevation="4" Class="@($"{Class} mb-10")" Style="@Style">
+    <MudExpansionPanel Icon="@Icon" @bind-Expanded="@ExpandedInternal"
+                       Class="@(HideExpand ? HideExpandClasses : "")">
+        <TitleContent>
+            @* <PageHeader Name="@Name" Color="Color.Primary" Typo="Typo.body1"/> *@
+            <div class=" d-flex flex-grow-1 justify-space-between">
+                <MudText Color="Color.Primary" Typo="Typo.body1">@Name</MudText>
+            </div>
+        </TitleContent>
+
+        <ChildContent>
+
+            @if (HeaderLeft is not null || HeaderRight is not null)
+            {
+                <div class="d-flex justify-space-between align-center mb-5">
+                    <div>@HeaderLeft</div>
+                    <div>@HeaderRight</div>
+                </div>
+            }
+
+            <div>
+                @ChildContent
+            </div>
+            <div>
+                @Footer
+            </div>
+
+        </ChildContent>
+    </MudExpansionPanel>
+    @* </MudExpansionPanels> *@
+</MudPaper>
+
+
+@code {
+    [Parameter] public bool Expanded { get; set; } = true;
+    [Parameter] public EventCallback<bool> ExpandedChanged { get; set; }
+
+    [Parameter] public RenderFragment? HeaderLeft { get; set; }
+    [Parameter] public RenderFragment? HeaderRight { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? Footer { get; set; }
+
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+    [Parameter] public string? Name { get; set; }
+    [Parameter] public string? SettingsName { get; set; }
+    [Parameter] public string? Icon { get; set; } = @Icons.Material.Filled.ExpandLess;
+    [Parameter] public bool HideExpand { get; set; }
+    [Parameter] public bool Outlined { get; set; }
+    string? HideExpandClasses = "mac-expand-panel-display-none pt-4";
+
+    bool ExpandedInternal
+    {
+        get => Expanded;
+        set
+        {
+            if (Expanded != value)
+            {
+                Expanded = value;
+                ExpandedChanged.InvokeAsync(value);
+            }
+        }
+    }
+}

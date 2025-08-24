@@ -1,0 +1,53 @@
+﻿@namespace Mac.Modules.Common
+@* @inject AuthenticationStateProvider AuthenticationStateProvider *@
+@inject SettingsService SettingsService
+@inject UserManager<ApplicationUser> UserManager
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+
+
+@code {
+// [CascadingParameter] public AuthenticationStateProvider? AuthenticationStateProvider { get; set; }
+    [CascadingParameter] public Task<AuthenticationState>? AuthenticationState { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    public string? UserName { get; set; }
+    public Settings Settings { get; set; } = new();
+    public Guid? UserId { get; set; }
+    public ClaimsPrincipal UserClaims { get; private set; }
+    bool isLoading;
+
+    public event Action? OnChange;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // UserClaims = (await AuthenticationStateProvider?.GetAuthenticationStateAsync())?.User;
+        UserClaims = (await AuthenticationState)?.User;
+        if (UserClaims is null) return;
+        UserName = UserClaims.Identity?.Name;
+        if (!string.IsNullOrWhiteSpace(UserName))
+        {
+            UserId = (await UserManager.FindByNameAsync(UserName))?.Id;
+
+            if (Settings is null || Settings.UserId != UserId)
+            {
+                Settings = await SettingsService.GetUserSettings(UserName);
+                if (Settings is null)
+                {
+                    Settings = new Settings { UserId = UserId ?? Guid.Empty };
+                    await SaveSettings();
+                }
+            }
+        }
+    }
+
+
+    public async Task SaveSettings()
+    {
+        await SettingsService.UpdateUserSettings(Settings);
+        await InvokeAsync(StateHasChanged);
+    }
+}

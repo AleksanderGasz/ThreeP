@@ -1,73 +1,83 @@
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using ThreeP.Components;
-using ThreeP.Components.Account;
-using ThreeP.Data;
+IConfiguration configuration;
+SerilogConfig.Startup();
 
-var builder = WebApplication.CreateBuilder(args);
+try
+{
+    Log.Information("App STARTING UP!!");
+    var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
+    builder.AddServiceDefaults();
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    // JSONS
+    builder.Configuration.AddJsonFile(Path.Combine("Configuration", "Json", "appsettings.json"), optional: false,
+        reloadOnChange: true);
+    builder.Configuration.AddJsonFile(
+        Path.Combine("Configuration", "Json", $"appsettings.{builder.Environment.EnvironmentName}.json"),
+        optional: true, reloadOnChange: true);
 
-builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<IdentityRedirectManager>();
-builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultScheme = IdentityConstants.ApplicationScheme;
-        options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-    })
-    .AddIdentityCookies();
+    configuration = builder.Configuration;
+    
+    builder.Services.AddConfiguration(configuration, builder.Environment);
+    builder.Services.AddServices(configuration, builder.Environment);
+SerilogConfig.Configure(builder);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
-                       throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+    var app = builder.Build();
 
-builder.Services.AddIdentityCore<ApplicationUser>(options =>
-    {
-        options.SignIn.RequireConfirmedAccount = true;
-        options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
-    })
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddSignInManager()
-    .AddDefaultTokenProviders();
-
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-
-var app = builder.Build();
-
-app.MapDefaultEndpoints();
+    app.MapDefaultEndpoints();
+    
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseMigrationsEndPoint();
-}
-else
-{
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseMigrationsEndPoint();
+    }
+    else
+    {
+        app.UseExceptionHandler("/Error", createScopeForErrors: true);
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
+    }
 
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForErrors: true);
+    app.UseStatusCodePagesWithReExecute("/not-found", createScopeForErrors: true);
 
-app.UseHttpsRedirection();
+    app.UseHttpsRedirection();
 
-app.UseAntiforgery();
+    app.UseAntiforgery();
 
-app.MapStaticAssets();
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+    app.MapStaticAssets();
+    app.MapRazorComponents<App>()
+        .AddInteractiveServerRenderMode();
 
 // Add additional endpoints required by the Identity /Account Razor components.
-app.MapAdditionalIdentityEndpoints();
+    app.MapAdditionalIdentityEndpoints();
+    
 
-app.Run();
+// DB ESTABLISH
+    var scope = app.Services.CreateAsyncScope();
+    var seed = scope.ServiceProvider.GetRequiredService<Seed>();
+
+    if (configuration.GetValue<bool>("DbSetup"))
+    {
+        seed.EnsureDataDirectoryExist();
+        await seed.EstablishDb();
+        await seed.AddAdmin("maciek@kukuczka.net", "mac101");
+    }
+
+//MINIMAL API
+    app.AddGetFileEndpoint();
+
+    app.Run();
+    Log.Information("APP STARTED!!");
+}
+catch (Exception e)
+{
+    Log.Fatal("""
+              App CRUSHED!! 
+               {0}
+              """, e.Message);
+}
+finally
+{
+    Log.CloseAndFlush();
+}
