@@ -1,4 +1,4 @@
-﻿using Serilog.Sinks.SystemConsole.Themes;
+﻿/*using Serilog.Sinks.SystemConsole.Themes;
 
 namespace ThreeP.Configuration;
 
@@ -26,7 +26,7 @@ public static class SerilogConfig
                 /*.MinimumLevel.Information()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
-                .MinimumLevel.Override("Microsoft.AspNetCore.Components.Server.Circuits", LogEventLevel.Warning)*/
+                .MinimumLevel.Override("Microsoft.AspNetCore.Components.Server.Circuits", LogEventLevel.Warning)#1#
                 .Enrich.FromLogContext()
                 .WithConsole()
                 .WithAspireOpenTelemetry(builder.Environment.ApplicationName)
@@ -61,4 +61,4 @@ public static class SerilogExtensions
         });
         return configuration;
     }
-}
+}*/

@@ -16,7 +16,8 @@ public record ResultCustomService(bool Success, string? Message)
         if (isLog) LogError<T>(message);
         return new ResultCustomService<T>(default, false, message);
     }
-    static void LogError<T>(string e) => Log.Logger.ForContext<T>().Error(e);
+    // static void LogError<T>(string e) => Log.Logger.ForContext<T>().Error(e);
+    static void LogError<T>(string e) => StaticLogger.Log.LogError(e);
 }
 
 public record ResultCustomService<T>(T? Data, bool Success, string? Message) : ResultCustomService(Success, Message);

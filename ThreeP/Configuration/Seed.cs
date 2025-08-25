@@ -3,7 +3,8 @@
 public class Seed(
     IDbContextFactory<ApplicationDbContext> dbContextFactory,
     UserManager<ApplicationUser> userManager,
-    RoleManager<ApplicationRole> roleManager)
+    RoleManager<ApplicationRole> roleManager,
+    ILogger<Seed> logger)
 {
     public async Task<bool> IsDbExist()
     {
@@ -14,7 +15,8 @@ public class Seed(
         }
         catch (Exception e)
         {
-            Log.Error($"BŁĄD PODCZAS SPRAWDZANIA BAZY DANYCH {e.Message}");
+            // Log.Error($"BŁĄD PODCZAS SPRAWDZANIA BAZY DANYCH {e.Message}");
+            
             return false;
         }
     }
@@ -28,7 +30,8 @@ public class Seed(
             Directory.CreateDirectory(dataDirectory);
         }
 
-        Log.Information($"Ścieżka do Bazy Danych {dataDirectory}");
+        // Log.Information($"Ścieżka do Bazy Danych {dataDirectory}");
+        logger.LogInformation($"Ścieżka do Bazy Danych {dataDirectory}");
     }
 
 
@@ -41,7 +44,9 @@ public class Seed(
         }
         catch (Exception e)
         {
-            Log.Error($"BŁĄD PODCZAS MIGRACJI BAZY DANYCH {e.Message}");
+            // Log.Error($"BŁĄD PODCZAS MIGRACJI BAZY DANYCH {e.Message}");
+        logger.LogError($"BŁĄD PODCZAS MIGRACJI BAZY DANYCH {e.Message}");
+            
         }
         /*await dbContext.Database.EnsureCreatedAsync();
         if (await dbContext.Database.CanConnectAsync())
@@ -74,8 +79,9 @@ public class Seed(
             var createUserResult = await userManager.CreateAsync(user, password);
             if (!createUserResult.Succeeded)
             {
-                Log.Logger.Error(
-                    $"BŁĄD PODCZAS TWORZENIA ADMINA: {string.Join(", ", createUserResult.Errors.Select(e => e.Description))}");
+                // Log.Logger.Error($"BŁĄD PODCZAS TWORZENIA ADMINA: {string.Join(", ", createUserResult.Errors.Select(e => e.Description))}");
+        logger.LogError($"BŁĄD PODCZAS TWORZENIA ADMINA: {string.Join(", ", createUserResult.Errors.Select(e => e.Description))}");
+                
                 return;
             }
 
@@ -88,7 +94,8 @@ public class Seed(
         }
         catch (Exception e)
         {
-            Log.Logger.Error($"BŁĄD PODCZAS TWORZENIA ADMINA {e.Message} {e.InnerException.Message}");
+            // Log.Logger.Error($"BŁĄD PODCZAS TWORZENIA ADMINA {e.Message} {e.InnerException.Message}");
+            logger.LogError($"BŁĄD PODCZAS TWORZENIA ADMINA {e.Message} {e.InnerException.Message}");
         }
     }
 }

@@ -13,6 +13,7 @@ global using Microsoft.AspNetCore.WebUtilities;
 global using Microsoft.Extensions.Options;
 global using System.IO.Compression;
 global using System.Text;
+global using Microsoft.Extensions.Logging.Console;
     
 
 // NAMESPACES
@@ -28,9 +29,9 @@ global using ThreeP.Configuration;
 // 3RD PARTY
 global using MudBlazor;
 global using MudBlazor.Services;
-global using Serilog;
-global using Serilog.Events;
-global using Serilog.Sinks.OpenTelemetry;
+// global using Serilog;
+// global using Serilog.Events;
+// global using Serilog.Sinks.OpenTelemetry;
 global  using PuppeteerSharp;
 global  using FluentResults;
 
