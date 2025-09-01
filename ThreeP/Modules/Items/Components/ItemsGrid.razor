@@ -1,0 +1,21 @@
+@namespace ThreeP.Modules.Items
+
+@if (Items?.Any() == false)
+{
+    <NoData/>
+}
+else
+{
+    <MudDataGrid Items="Items">
+        <Columns>
+            <PropertyColumn Property="x=>x.Name" Title="Nazwa"/>
+            <PropertyColumn Property="x=>x.Description" Title="Opis"/>
+            <PropertyColumn Property="x=>x.Weight" Title="Waga"/>
+        </Columns>
+
+    </MudDataGrid>
+}
+
+@code {
+    [Parameter] public HashSet<Item>? Items { get; set; }
+}

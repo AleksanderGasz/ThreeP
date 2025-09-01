@@ -28,7 +28,7 @@ public static class Di
         services.AddScoped<PdfService>();
         
         // APP SERVICES
-
+        services.AddScoped<ItemsService>();
         
         return services;
     }

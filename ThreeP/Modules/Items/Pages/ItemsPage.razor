@@ -1,0 +1,33 @@
+﻿@namespace ThreeP.Modules.Items
+@page "/ekwipunek"
+@inject ItemsService ItemsService
+@inject ShowResultService ShowResultService
+
+<UpdateItem Item="item" ItemChanged="OnItemChanged"/>
+<ItemsGrid Items="Items"/>
+
+@code {
+    Item? item;
+    [PersistentState] HashSet<Item>? Items { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Get();
+    }
+
+
+    async Task Get()
+    {
+        Items = await ItemsService.Get();
+    }
+
+
+    async Task OnItemChanged(Item? arg)
+    {
+        item = arg;
+        var result = await ItemsService.UpdateItem(item);
+        ShowResultService.ShowResultMessage(result);
+        await Get();
+    }
+}

@@ -1,5 +1,5 @@
 ﻿@namespace Mac.Modules.Elements
-<MudPaper Elevation="4" Class="my-10 pa-4">
+<MudPaper Elevation="GlobalStyles.Elevation" Class="my-10 pa-4">
     <MudStack Row Justify="Justify.SpaceBetween">
         <PageHeader Name="@Name" Color="Color.Primary" Typo="Typo.body1"/>
         <MudToggleIconButton @bind-Toggled="collapsed" Icon="@Icons.Material.Filled.ArrowDropUp"
@@ -13,6 +13,6 @@
 
 @code {
     [Parameter] public string? Name { get; set; }
-    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
     bool collapsed = true;
 }

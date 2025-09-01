@@ -44,4 +44,4 @@ global using Mac.Modules.Results;
 global  using Mac.Modules.Settings;
 
 //APP  MODULES
-global using ThreeP.Modules.Files;
+global using ThreeP.Modules.Items;

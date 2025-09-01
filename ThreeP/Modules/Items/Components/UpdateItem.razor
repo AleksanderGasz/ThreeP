@@ -1,0 +1,33 @@
+﻿@namespace ThreeP.Modules.Items
+
+<Mbox Name="Dodaj/Edytuj ">
+    <MudForm @ref="@form" Model="Item" @bind-IsValid="@success" @bind-Errors="errors">
+        <MudTextField @bind-Value="@Item?.Name" Label="Nazwa" Variant="Variant.Outlined"  Required Immediate Clearable/>
+        <MudTextField @bind-Value="@Item?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
+        <MudNumericField @bind-Value="@Item?.Weight" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg" Clearable/>
+        <MudStack Row Justify="Justify.FlexEnd">
+            <MudButton Disabled="@(!form.IsValid)" Variant="Variant.Filled" Color="Color.Success" OnClick="Ok">OK</MudButton>
+        </MudStack>
+    </MudForm>
+</Mbox>
+
+@code {
+    [Parameter] public EventCallback<Item> ItemChanged { get; set; }
+    [Parameter] public Item? Item { get; set; }
+    
+    string[]? errors;
+    bool success;
+    MudForm? form;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Item is null) Item=new(); 
+    }
+
+
+    async Task Ok()
+    {
+        await ItemChanged.InvokeAsync(Item);
+        Item = new();
+    }
+}
