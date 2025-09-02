@@ -11,10 +11,16 @@ else
         <ToolBarContent>
             <MudText Color="Color.Warning">Przedmioty</MudText>
             <MudSpacer/>
-            <MudTextField Disabled="addSetDisabled.Value" @bind-Value="setName" Variant="Variant.Text" Placeholder="Nazwa Setu" Class="me-2"/>
-            <MudButton Disabled="addSetDisabled.Value" Variant="Variant.Filled" Color="Color.Info" Size="Size.Small"
-                       OnClick="AddSet">Dodaj Set
-            </MudButton>
+            <MudForm @ref="@setForm">
+                <MudStack Row>
+                    <MudTextField Disabled="addSetDisabled.Value" @bind-Value="setName" Variant="Variant.Text"
+                                  Placeholder="Nazwa Setu" Class="me-2" Required Immediate/>
+                    <MudButton Disabled="@(addSetDisabled.Value||!setForm.IsValid)" Variant="Variant.Filled" Color="Color.Info"
+                               Size="Size.Small"
+                               OnClick="AddSet">Dodaj Set
+                    </MudButton>
+                </MudStack>
+            </MudForm>
         </ToolBarContent>
         <Columns>
             @* <HierarchyColumn T="Item"/> *@
@@ -45,9 +51,11 @@ else
     [Parameter] public HashSet<Item>? Items { get; set; }
 
     HashSet<Item>? selectedItems = [];
-    bool? addSetDisabled => selectedItems?.Any() != true;
+    bool? addSetDisabled => selectedItems?.Any() != true ;
 
+    MudForm? setForm;
     string? setName;
+
 
     async Task Edit(CellContext<Item?> context)
     {
@@ -64,12 +72,22 @@ else
 
     async Task AddSet()
     {
-        var set = new Set
+        if (setForm.IsValid)
         {
-            Name = setName,
-            Items = selectedItems
-        };
-        await OnSetCreating.InvokeAsync(set);
+            var weight = selectedItems?.Sum(x => x.Weight) ?? 0;
+            var set = new Set
+            {
+                Name = setName,
+                Description = "",
+                Weight = weight,
+                Items = selectedItems
+            };
+            await OnSetCreating.InvokeAsync(set);
+            setName = string.Empty;
+            selectedItems.Clear();
+        }
     }
+
+
     // void Refresh() => StateHasChanged();
 }

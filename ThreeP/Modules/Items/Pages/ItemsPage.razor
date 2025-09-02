@@ -4,10 +4,10 @@
 @inject SetService SetService
 @inject ShowResultService ShowResultService
 
-<UpdateItem Item="item" ItemChanged="Update"/>
+<UpdateItem Item="item" ItemChanged="UpdateItem"/>
 <MudStack Row StretchItems="StretchItems.All">
-    <ItemsGrid Items="Items" OnEdit="Edit" OnDelete="Delete" OnSetCreating="UpdateSet"/>
-    <SetsGrid Sets="Sets"/>
+    <ItemsGrid Items="Items" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet"/>
+    <SetsGrid Sets="Sets" OnEdit="EditSet" OnDelete="DeleteSet"/>
 </MudStack>
 
 @code {
@@ -27,13 +27,13 @@
     async Task GetItems() => Items = await ItemsService.Get();
 
 
-    async Task Edit(Item arg)
+    async Task EditItem(Item arg)
     {
         item = arg;
     }
 
 
-    async Task Update(Item? arg)
+    async Task UpdateItem(Item? arg)
     {
         item = arg;
         var result = await ItemsService.UpdateItem(item);
@@ -42,7 +42,7 @@
     }
 
 
-    async Task Delete(Guid? id)
+    async Task DeleteItem(Guid? id)
     {
         var result = await ItemsService.Delete(id);
         ShowResultService.ShowResultMessage(result);
@@ -57,6 +57,22 @@
     async Task UpdateSet(Set? arg)
     {
         var result = await SetService.UpdateSet(arg);
+        ShowResultService.ShowResultMessage(result);
+        await GetSets();
+    }
+
+
+    async Task EditSet(Set? arg)
+    {
+        var result = await SetService.UpdateSet(arg);
+        ShowResultService.ShowResultMessage(result);
+        await GetSets();
+    }
+
+
+    async Task DeleteSet(Guid? id)
+    {
+        var result=await SetService.Delete(id);
         ShowResultService.ShowResultMessage(result);
         await GetSets();
     }

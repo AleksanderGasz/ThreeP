@@ -72,4 +72,4 @@ else
         var result = await DialogService.ShowMessageBox("Uwaga!", "Czy na pewno chcesz skasować?", yesText: "Usuń!", cancelText: "Anuluj");
         if (result == true) await OnDelete.InvokeAsync(context.Item.Id);
     }
-}}
+}

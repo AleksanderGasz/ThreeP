@@ -19,6 +19,8 @@ public class SetService(IDbContextFactory<ApplicationDbContext> dbContextFactory
                 {
                     Id = incoming.Id,
                     Name = incoming.Name,
+                    Description = incoming.Description,
+                    Weight = incoming.Weight,
                     Items = []
                 };
                 await dbContext.Sets.AddAsync(exist);
@@ -26,6 +28,8 @@ public class SetService(IDbContextFactory<ApplicationDbContext> dbContextFactory
             else
             {
                 exist.Name = incoming.Name;
+                exist.Description = incoming.Description;
+                exist.Weight = incoming.Weight;
                 exist.Items.Clear();
             }
 
