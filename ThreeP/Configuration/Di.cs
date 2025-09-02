@@ -29,6 +29,7 @@ public static class Di
         
         // APP SERVICES
         services.AddScoped<ItemsService>();
+        services.AddScoped<SetService>();
         
         return services;
     }

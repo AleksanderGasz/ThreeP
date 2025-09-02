@@ -5,7 +5,7 @@ public class ItemsService(IDbContextFactory<ApplicationDbContext> contextFactory
 {
    public async Task<Result> UpdateItem(Item? item)
     {
-        if (item is null) return Result.Fail(["Item is null"]);
+        if (item is null) return Result.Fail([LogText.ObjectIsNull]);
         try
         {
             await using var dbContext = await contextFactory.CreateDbContextAsync();
@@ -23,12 +23,13 @@ public class ItemsService(IDbContextFactory<ApplicationDbContext> contextFactory
             }
 
             await dbContext.SaveChangesAsync();
-            return Result.Ok().WithSuccess("Zapisano pomyślnie");
+            return Result.Ok().WithSuccess(LogText.ObjectSaved);
+            
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error updating item {ItemId}", item.Id);
-            return Result.Fail(["Error updating item", e.Message]);
+            logger.LogError(e, "{LogText}, Id: {Id}", LogText.ExceptionOccurred,item.Id);
+            return Result.Fail([LogText.ExceptionOccurred, e.Message]);
         }
     }
 }

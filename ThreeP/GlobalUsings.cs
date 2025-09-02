@@ -42,6 +42,7 @@ global using Mac.Modules.Pdf;
 global using Mac.Modules.Snackbar;
 global using Mac.Modules.Results;
 global  using Mac.Modules.Settings;
+global using Mac.Modules.Errors;
 
 //APP  MODULES
 global using ThreeP.Modules.Items;

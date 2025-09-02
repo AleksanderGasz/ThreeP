@@ -1,4 +1,5 @@
 @namespace ThreeP.Modules.Items
+@inject IDialogService DialogService
 
 @if (Items?.Any() == false)
 {
@@ -6,16 +7,69 @@
 }
 else
 {
-    <MudDataGrid Items="Items">
+    <MudDataGrid Items="Items" Elevation="GlobalStyles.Elevation" MultiSelection @bind-SelectedItems="selectedItems">
+        <ToolBarContent>
+            <MudText Color="Color.Warning">Przedmioty</MudText>
+            <MudSpacer/>
+            <MudTextField Disabled="addSetDisabled.Value" @bind-Value="setName" Variant="Variant.Text" Placeholder="Nazwa Setu" Class="me-2"/>
+            <MudButton Disabled="addSetDisabled.Value" Variant="Variant.Filled" Color="Color.Info" Size="Size.Small"
+                       OnClick="AddSet">Dodaj Set
+            </MudButton>
+        </ToolBarContent>
         <Columns>
-            <PropertyColumn Property="x=>x.Name" Title="Nazwa"/>
-            <PropertyColumn Property="x=>x.Description" Title="Opis"/>
-            <PropertyColumn Property="x=>x.Weight" Title="Waga"/>
+            @* <HierarchyColumn T="Item"/> *@
+            <SelectColumn T="Item"/>
+            <PropertyColumn Property="x => x.Name" Title="Nazwa"/>
+            <PropertyColumn Property="x => x.Description" Title="Opis"/>
+            <PropertyColumn Property="x => x.Weight" Title="Waga"/>
+
+            <TemplateColumn StickyRight Title="Akcje" CellClass="d-flex justify-center" CellStyle="width:120px;"
+                            HeaderStyle="width:120px; ">
+                <CellTemplate>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small"
+                                   OnClick="@(e => Edit(context))"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                                   OnClick="@(e => Delete(context))"/>
+                </CellTemplate>
+            </TemplateColumn>
+
         </Columns>
 
     </MudDataGrid>
 }
 
 @code {
+    [Parameter] public EventCallback<Item> OnEdit { get; set; }
+    [Parameter] public EventCallback<Guid?> OnDelete { get; set; }
+    [Parameter] public EventCallback<Set> OnSetCreating { get; set; }
     [Parameter] public HashSet<Item>? Items { get; set; }
+
+    HashSet<Item>? selectedItems = [];
+    bool? addSetDisabled => selectedItems?.Any() != true;
+
+    string? setName;
+
+    async Task Edit(CellContext<Item?> context)
+    {
+        await OnEdit.InvokeAsync(context.Item);
+    }
+
+
+    async Task Delete(CellContext<Item?> context)
+    {
+        var result = await DialogService.ShowMessageBox("Uwaga!", "Czy na pewno chcesz skasować?", yesText: "Usuń!", cancelText: "Anuluj");
+        if (result == true) await OnDelete.InvokeAsync(context.Item.Id);
+    }
+
+
+    async Task AddSet()
+    {
+        var set = new Set
+        {
+            Name = setName,
+            Items = selectedItems
+        };
+        await OnSetCreating.InvokeAsync(set);
+    }
+    // void Refresh() => StateHasChanged();
 }

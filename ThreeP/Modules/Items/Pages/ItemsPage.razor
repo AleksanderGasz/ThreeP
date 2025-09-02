@@ -1,33 +1,63 @@
 ﻿@namespace ThreeP.Modules.Items
 @page "/ekwipunek"
 @inject ItemsService ItemsService
+@inject SetService SetService
 @inject ShowResultService ShowResultService
 
-<UpdateItem Item="item" ItemChanged="OnItemChanged"/>
-<ItemsGrid Items="Items"/>
+<UpdateItem Item="item" ItemChanged="Update"/>
+<MudStack Row StretchItems="StretchItems.All">
+    <ItemsGrid Items="Items" OnEdit="Edit" OnDelete="Delete" OnSetCreating="UpdateSet"/>
+    <SetsGrid Sets="Sets"/>
+</MudStack>
 
 @code {
     Item? item;
-    [PersistentState] HashSet<Item>? Items { get; set; }
+    [PersistentState] public HashSet<Item>? Items { get; set; }
+    [PersistentState] public HashSet<Set>? Sets { get; set; } = [];
 
 
     protected override async Task OnInitializedAsync()
     {
-        await Get();
+        await GetItems();
+        await GetSets();
     }
 
 
-    async Task Get()
+// ITEMS
+    async Task GetItems() => Items = await ItemsService.Get();
+
+
+    async Task Edit(Item arg)
     {
-        Items = await ItemsService.Get();
+        item = arg;
     }
 
 
-    async Task OnItemChanged(Item? arg)
+    async Task Update(Item? arg)
     {
         item = arg;
         var result = await ItemsService.UpdateItem(item);
         ShowResultService.ShowResultMessage(result);
-        await Get();
+        await GetItems();
+    }
+
+
+    async Task Delete(Guid? id)
+    {
+        var result = await ItemsService.Delete(id);
+        ShowResultService.ShowResultMessage(result);
+        await GetItems();
+    }
+
+
+    // SETS
+    async Task GetSets() => Sets = await SetService.Get([x => x.Items]);
+
+
+    async Task UpdateSet(Set? arg)
+    {
+        var result = await SetService.UpdateSet(arg);
+        ShowResultService.ShowResultMessage(result);
+        await GetSets();
     }
 }

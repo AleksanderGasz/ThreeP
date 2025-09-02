@@ -92,7 +92,7 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbContext
 
 
 //!DELETE
-    public async Task Delete(Guid? id)
+    /*public async Task Delete(Guid? id)
     {
         if (id is null) return;
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
@@ -101,5 +101,18 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbContext
 
         dbContext.Set<T>().Remove(exist);
         await dbContext.SaveChangesAsync();
+    }*/
+    public async Task<Result> Delete(Guid? id)
+    {
+        if (id is null) return Result.Fail(LogText.ObjectIsNull);
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        var exist = await dbContext.Set<T>().FindAsync(id);
+        if (exist is null) return Result.Fail(LogText.ObjectIsNull);
+
+
+        dbContext.Set<T>().Remove(exist);
+        var saveResult = await dbContext.SaveChangesAsync();
+        if (saveResult <= 0) return Result.Fail(LogText.CantDelete);
+            return Result.Ok().WithSuccess(LogText.ObjectDeleted);
     }
 }

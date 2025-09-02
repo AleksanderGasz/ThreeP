@@ -2,10 +2,15 @@
 <MudPaper Elevation="GlobalStyles.Elevation" Class="my-10 pa-4">
     <MudStack Row Justify="Justify.SpaceBetween">
         <PageHeader Name="@Name" Color="Color.Primary" Typo="Typo.body1"/>
-        <MudToggleIconButton @bind-Toggled="collapsed" Icon="@Icons.Material.Filled.ArrowDropUp"
+        <MudSpacer/>
+        @if (HeaderRight is not null)
+        {
+            @HeaderRight
+        }
+        <MudToggleIconButton @bind-Toggled="Expanded" Icon="@Icons.Material.Filled.ArrowDropUp"
                              ToggledIcon="@Icons.Material.Filled.ArrowDropDown"/>
     </MudStack>
-    <MudCollapse Expanded="collapsed">
+    <MudCollapse Expanded="Expanded">
         @ChildContent
     </MudCollapse>
 </MudPaper>
@@ -13,6 +18,7 @@
 
 @code {
     [Parameter] public string? Name { get; set; }
+    [Parameter] public bool Expanded { get; set; }
+    [Parameter] public RenderFragment? HeaderRight { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
-    bool collapsed = true;
 }

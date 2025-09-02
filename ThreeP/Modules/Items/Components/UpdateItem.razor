@@ -1,33 +1,70 @@
 ﻿@namespace ThreeP.Modules.Items
 
-<Mbox Name="Dodaj/Edytuj ">
-    <MudForm @ref="@form" Model="Item" @bind-IsValid="@success" @bind-Errors="errors">
-        <MudTextField @bind-Value="@Item?.Name" Label="Nazwa" Variant="Variant.Outlined"  Required Immediate Clearable/>
-        <MudTextField @bind-Value="@Item?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
-        <MudNumericField @bind-Value="@Item?.Weight" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg" Clearable/>
-        <MudStack Row Justify="Justify.FlexEnd">
-            <MudButton Disabled="@(!form.IsValid)" Variant="Variant.Filled" Color="Color.Success" OnClick="Ok">OK</MudButton>
-        </MudStack>
-    </MudForm>
+<div style="text-align: end;">
+</div>
+<Mbox Name="Dodaj/Edytuj " Expanded="expanded">
+    <HeaderRight>
+        <MudButton Disabled="addDisabled" Color="Color.Success" Variant="Variant.Filled" Size="Size.Medium" OnClick="Add">Dodaj</MudButton>
+    </HeaderRight>
+    <ChildContent>
+        <MudForm @ref="@form" Model="Item" @bind-IsValid="@success" @bind-Errors="errors">
+            <MudTextField @bind-Value="@Item?.Name" Label="Nazwa" Variant="Variant.Outlined" Required Immediate
+                          Clearable/>
+            <MudTextField @bind-Value="@Item?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
+            <MudNumericField @bind-Value="@Item?.Weight" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg"
+                             Clearable/>
+            <MudStack Row Justify="Justify.FlexEnd" Class="@GlobalStyles.MarginTop">
+                <MudButton Disabled="@(!form.IsValid)" Variant="Variant.Filled" Color="Color.Success" OnClick="Ok">OK
+                </MudButton>
+            </MudStack>
+        </MudForm>
+    </ChildContent>
 </Mbox>
 
 @code {
     [Parameter] public EventCallback<Item> ItemChanged { get; set; }
     [Parameter] public Item? Item { get; set; }
-    
+
     string[]? errors;
     bool success;
     MudForm? form;
+    Item exist = new();
 
-    protected override async Task OnParametersSetAsync()
+    bool expanded;
+    bool addDisabled;
+
+
+    protected override void OnParametersSet()
     {
-        if (Item is null) Item=new(); 
+        Item ??= new();
+        if (!ReferenceEquals(exist, Item) && !string.IsNullOrWhiteSpace(Item.Name))
+        {
+            exist = Item;
+            expanded = true;
+        }
+        else
+        {
+            Item = new();
+            expanded = false;
+        }
+    }
+
+
+    async Task Add()
+    {
+        addDisabled = true;
+        Item = new();
+        exist = Item;
+        expanded = true;
     }
 
 
     async Task Ok()
     {
+        exist = Item;
         await ItemChanged.InvokeAsync(Item);
         Item = new();
+        expanded = false;
+        addDisabled = false;
     }
 }

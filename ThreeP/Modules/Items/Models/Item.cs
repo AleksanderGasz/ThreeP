@@ -9,5 +9,6 @@ public class Item:BaseModelWithUser
     public float? Weight { get; set; }
     
     //NAV
-    public ICollection<SetItem> SetItems { get; set; } = new HashSet<SetItem>();
+    // public ICollection<SetItem> SetItems { get; set; } = new HashSet<SetItem>();
+    public ICollection<Set> Sets { get; set; }= new HashSet<Set>();
 }
