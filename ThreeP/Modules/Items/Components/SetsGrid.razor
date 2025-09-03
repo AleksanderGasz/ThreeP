@@ -7,20 +7,26 @@
 }
 else
 {
-    <MudDataGrid Items="Sets" Elevation="GlobalStyles.Elevation">
+    <MudDataGrid T="Set" Items="Sets" Elevation="GlobalStyles.Elevation"
+                 ReadOnly="false" EditMode="DataGridEditMode.Form" EditTrigger="DataGridEditTrigger.Manual"
+                 CommittedItemChanges="OnCommitItemChanges" CanceledEditingItem="OnCanceledEditingItem"
+                 >
+
         <ToolBarContent>
             <MudText Color="Color.Warning">Sety</MudText>
         </ToolBarContent>
         <Columns>
             <HierarchyColumn T="Set"/>
-            <PropertyColumn Property="x => x.Name" Title="Nazwa"/>
-            <PropertyColumn Property="x => x.Description" Title="Opis"/>
-            <PropertyColumn Property="x => x.Weight" Title="Waga"/>
+            <PropertyColumn Property="x => x.Name" Title="Nazwa" Required="false" Editable/>
+            <PropertyColumn Property="x => x.Description" Title="Opis" Required="false" Editable/>
+            <PropertyColumn Property="x => x.Weight" Title="Waga" Editable="false" />
+            
+            @* ACTIONS *@
             <TemplateColumn StickyRight Title="Akcje" CellClass="d-flex justify-center" CellStyle="width:120px;"
                             HeaderStyle="width:120px; ">
                 <CellTemplate>
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small"
-                                   OnClick="@(e => Edit(context))"/>
+                                   OnClick="@context.Actions.StartEditingItemAsync"/>
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
                                    OnClick="@(e => Delete(context))"/>
                 </CellTemplate>
@@ -71,5 +77,18 @@ else
     {
         var result = await DialogService.ShowMessageBox("Uwaga!", "Czy na pewno chcesz skasować?", yesText: "Usuń!", cancelText: "Anuluj");
         if (result == true) await OnDelete.InvokeAsync(context.Item.Id);
+    }
+
+   
+
+    async Task OnCommitItemChanges(Set? arg)
+    {
+            await OnEdit.InvokeAsync(arg);
+    }
+    
+    void OnCanceledEditingItem(Set? item)
+    {
+        // ZMIANA: Anulowanie edycji - opcjonalnie można dodać logikę
+        StateHasChanged();
     }
 }

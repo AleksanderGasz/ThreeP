@@ -59,6 +59,29 @@ public static class Configuration
 
         services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
+// JSON
+        services.Configure<JsonSerializerOptions>(options =>
+        {
+            options.PropertyNameCaseInsensitive =true;
+            options.ReferenceHandler = ReferenceHandler.Preserve;
+            options.WriteIndented = true;
+        });
+        
+        // JSON - Konfiguracja dla HTTP API
+        /*services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.PropertyNameCaseInsensitive = true;
+            options.SerializerOptions.ReferenceHandler = ReferenceHandler.Preserve; // Obsługa cyklicznych referencji
+            options.SerializerOptions.WriteIndented = true;
+        });*/
+
+        // JSON - Singleton dla bezpośredniego użycia w serwisach
+        /*services.AddSingleton(provider => new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            ReferenceHandler = ReferenceHandler.Preserve, // Obsługa cyklicznych referencji Items ↔ Sets
+            WriteIndented = environment.IsDevelopment()
+        });*/
 
         // IOPTIONS
         services.AddAppOptions(configuration);

@@ -10,6 +10,7 @@ public class Set:BaseModelWithUser
     
     // NAV
     // public ICollection<SetItem> SetsItems { get; set; } = new HashSet<SetItem>();
+    [JsonIgnore]
     public ICollection<Item> Items { get; set; } = new HashSet<Item>();
 
 }
