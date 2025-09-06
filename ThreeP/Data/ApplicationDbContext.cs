@@ -7,7 +7,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Item> Items { get; set; }
 
     public DbSet<Set> Sets { get; set; }
+
     // public DbSet<SetItem> SetItems { get; set; }
+    public DbSet<Trip> Trips { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -46,5 +48,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasOne(x => x.Item)
             .WithMany(x => x.SetItems)
             .HasForeignKey(x => x.ItemId);*/
+
+        // TRIPS
+        builder.Entity<Trip>().HasOne(x => x.Set).WithMany(x => x.Trips).HasForeignKey(x => x.SetId);
     }
 }

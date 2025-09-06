@@ -30,6 +30,7 @@ public static class Di
         // APP SERVICES
         services.AddScoped<ItemsService>();
         services.AddScoped<SetService>();
+        services.AddScoped<TripService>();
         
         return services;
     }

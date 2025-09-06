@@ -4,7 +4,7 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbContext
     where T : BaseModel, new()
 {
     //GET
-    public async Task<HashSet<T>> Get(
+    public async Task<IEnumerable<T>> Get(
         List<Expression<Func<T, object>>>? includes = null,
         List<Expression<Func<T, bool>>>? filters = null,
         Expression<Func<T, object>>? orderBy = null,

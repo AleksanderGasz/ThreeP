@@ -2,8 +2,11 @@
     <div>
         <MudNavLink Href="/" Match="NavLinkMatch.All">Główna</MudNavLink>
         @* <MudNavLink Href="/olx/callback" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Link" IconColor="Color.Primary">Callback</MudNavLink> *@
-        <MudNavLink Href="/ekwipunek" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Backpack"
+        <MudNavLink Href="/equipment" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Backpack"
                     IconColor="Color.Warning" ActiveClass="mud-warning-text">Ekwipunek
+        </MudNavLink>
+        <MudNavLink Href="/trips" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.TripOrigin"
+                    IconColor="Color.Warning" ActiveClass="mud-warning-text">Tripy
         </MudNavLink>
         <SectionOutlet SectionId="FiltersSection"/>
     </div>
@@ -17,7 +20,7 @@
                     IconColor="Color.Warning" ActiveClass="mud-warning-text">Ustawienia
         </MudNavLink>
         <div class="my-2">
-            <Version Name="3P" By="Mac" />
+            <Version Name="3P" By="Mac"/>
         </div>
     </div>
 </MudNavMenu>

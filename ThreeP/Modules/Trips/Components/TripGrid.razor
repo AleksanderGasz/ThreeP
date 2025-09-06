@@ -1,0 +1,58 @@
+@namespace ThreeP.Modules.Trips
+@inject IDialogService DialogService
+@typeparam T where T : Trip,new()
+
+@if (Items?.Any() == false)
+{
+    <NoData/>
+}
+else
+{
+    <MudDataGrid T="T" Items="Items" Elevation="GlobalStyles.Elevation">
+        <ToolBarContent>
+            <MTitle Name="Tripy"/>
+        </ToolBarContent>
+        <Columns>
+            @* COLUMS *@
+            <HierarchyColumn T="Trip"/>
+            <PropertyColumn   Property="x=>x.Name"/>
+            @* ACTIONS *@
+            <TemplateColumn StickyRight Title="Akcje" CellClass="d-flex justify-center" CellStyle="width:120px;"
+                            HeaderStyle="width:120px; ">
+                <CellTemplate>
+
+                    <MudIconButton  Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small"
+                                   OnClick="@(e=>Edit(context))"/>
+                    <MudIconButton  Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                                   OnClick="@(e => Delete(context))"/>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        @* DETAILS *@
+        <ChildRowContent>
+
+        </ChildRowContent>
+    </MudDataGrid>
+}
+
+@code {
+    [Parameter] public EventCallback<T> OnEdit { get; set; }
+    [Parameter] public EventCallback<Guid?> OnDelete { get; set; }
+    [Parameter] public List<T>? Items { get; set; }
+
+
+    async Task Edit(CellContext<T?> context) => await OnEdit.InvokeAsync(context.Item);
+
+
+    async Task Delete(CellContext<T?> context)
+    {
+        var result = await DialogService.ShowMessageBox("Uwaga!", "Czy na pewno chcesz skasować?", yesText: "Usuń!", cancelText: "Anuluj");
+        if (result == true) await OnDelete.InvokeAsync(context.Item.Id);
+    }
+
+
+    async Task OnCommit(T? arg) => await OnEdit.InvokeAsync(arg);
+
+
+    void OnCancelEditing(T? item) => StateHasChanged();
+}

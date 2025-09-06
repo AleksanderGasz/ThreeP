@@ -9,7 +9,8 @@ else
 {
     <MudDataGrid Items="Items" Elevation="GlobalStyles.Elevation" MultiSelection @bind-SelectedItems="selectedItems">
         <ToolBarContent>
-            <MudText Color="Color.Warning">Przedmioty</MudText>
+            @* <MudText Color="Color.Warning">Przedmioty</MudText> *@
+            <MTitle Name="Wyposażenie" />
             <MudSpacer/>
             <MudForm @ref="@setForm">
                 <MudStack Row>

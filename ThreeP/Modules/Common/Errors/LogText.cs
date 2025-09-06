@@ -5,6 +5,7 @@ public record LogText
     // COMMON
     // public string Test => Format("Test");
     public static string ObjectIsNull => Format("Object is null");
+    public static string OperationCancelled => Format("Operation cancelled");
     
     // EXCEPTIONS
 public static string? ExceptionOccurred => Format("Exception occurred: ");

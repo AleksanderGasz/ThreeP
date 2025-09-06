@@ -1,0 +1,71 @@
+﻿@namespace ThreeP.Modules.Trips
+@typeparam T where T:Trip, new()
+
+<div style="text-align: end;">
+</div>
+<Mbox Name="Dodaj/Edytuj przedmiot" Color="Color.Warning" Expanded="expanded">
+    <HeaderRight>
+        <MudButton Disabled="addDisabled" Color="Color.Success" Variant="Variant.Filled" Size="Size.Medium" OnClick="Add">Dodaj</MudButton>
+    </HeaderRight>
+    <ChildContent>
+        <MudForm @ref="@form" Model="Item" @bind-IsValid="@success" @bind-Errors="errors">
+            <MudTextField @bind-Value="@Item?.Name" Label="Nazwa" Variant="Variant.Outlined" Required Immediate
+                          Clearable/>
+            <MudTextField @bind-Value="@Item?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
+         
+            <MudStack Row Justify="Justify.FlexEnd" Class="@GlobalStyles.MarginTop">
+                <MudButton Disabled="@(!form.IsValid)" Variant="Variant.Filled" Color="Color.Success" OnClick="Ok">OK
+                </MudButton>
+            </MudStack>
+        </MudForm>
+    </ChildContent>
+</Mbox>
+
+@code {
+    [Parameter] public EventCallback<T> ItemChanged { get; set; }
+    [Parameter] public T? Item { get; set; }
+
+    string[]? errors;
+    bool success;
+    MudForm? form;
+    T? exist = new() ;
+
+    bool expanded;
+    bool addDisabled;
+
+
+    protected override void OnParametersSet()
+    {
+        Item ??= new();
+        if (!ReferenceEquals(exist, Item) && !string.IsNullOrWhiteSpace(Item.Name))
+        {
+            exist = Item;
+            expanded = true;
+            addDisabled = true;
+        }
+        else
+        {
+            Item = new();
+            expanded = false;
+        }
+    }
+
+
+    async Task Add()
+    {
+        addDisabled = true;
+        Item = new();
+        exist = Item;
+        expanded = true;
+    }
+
+
+    async Task Ok()
+    {
+        exist = Item;
+        await ItemChanged.InvokeAsync(Item);
+        Item = new();
+        expanded = false;
+        addDisabled = false;
+    }
+}

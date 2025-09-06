@@ -1,0 +1,43 @@
+@namespace ThreeP.Modules.Trips
+@page "/trips"
+@inject TripService TripService
+@inject ShowResultService ShowResultService
+
+@* <MTitle Name="Tripy"/> *@
+
+<TripUpdate T="Trip" Item="item" ItemChanged="UpdateItem"/>
+<MacVerticalSpacer/>
+<TripGrid T="Trip" Items="Trips" OnEdit="Edit" OnDelete="Delete"/>
+
+@code {
+    [PersistentState] List<Trip>? Trips { get; set; } = [];
+    Trip item = new();
+
+    protected override async Task OnInitializedAsync() => await Get();
+
+
+    async Task Get() => Trips = (await TripService.Get()).ToList();
+
+
+    async Task Edit(Trip arg)
+    {
+        item = arg;
+    }
+
+
+    async Task Delete(Guid? id)
+    {
+        var result = await TripService.Delete(id);
+        ShowResultService.ShowResultMessage(result);
+        await Get();
+    }
+
+
+    async Task UpdateItem(Trip? arg)
+    {
+        item = arg;
+        var result = await TripService.UpdateTrip(item);
+        ShowResultService.ShowResultMessage(result);
+        await Get();
+    }
+}

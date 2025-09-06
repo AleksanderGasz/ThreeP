@@ -10,7 +10,7 @@ else
     <MudDataGrid T="Set" Items="Sets" Elevation="GlobalStyles.Elevation"
                  ReadOnly="false" EditMode="DataGridEditMode.Form" EditTrigger="DataGridEditTrigger.Manual"
                  CommittedItemChanges="OnCommitItemChanges" CanceledEditingItem="OnCanceledEditingItem"
-                 >
+    >
 
         <ToolBarContent>
             <MudText Color="Color.Warning">Sety</MudText>
@@ -19,8 +19,8 @@ else
             <HierarchyColumn T="Set"/>
             <PropertyColumn Property="x => x.Name" Title="Nazwa" Required="false" Editable/>
             <PropertyColumn Property="x => x.Description" Title="Opis" Required="false" Editable/>
-            <PropertyColumn Property="x => x.Weight" Title="Waga" Editable="false" />
-            
+            <PropertyColumn Property="x => x.Weight" Title="Waga" Editable="false"/>
+
             @* ACTIONS *@
             <TemplateColumn StickyRight Title="Akcje" CellClass="d-flex justify-center" CellStyle="width:120px;"
                             HeaderStyle="width:120px; ">
@@ -32,39 +32,40 @@ else
                 </CellTemplate>
             </TemplateColumn>
         </Columns>
+
+        @* DETAILS *@
         <ChildRowContent>
-            <MudSimpleTable Elevation="GlobalStyles.Elevation" Hover Dense Style="overflow-x: auto;">
-                <thead>
-                <tr>
-                    <th>Nazwa</th>
-                    <th>Opis</th>
-                    <th>Waga</th>
-                </tr>
-                </thead>
-                <tbody>
-                @if (context.Item?.Items.Any() == true)
-                {
-                    foreach (var item in context.Item?.Items)
-                    {
-                        <tr>
-                            <td>@item.Name</td>
-                            <td>@item.Description</td>
-                            <td>@item.Weight</td>
-                        </tr>
+            @if (context?.Item.Items.Any()==true)
+            {
+                <MudSimpleTable Elevation="GlobalStyles.Elevation" Hover Dense Style="overflow-x: auto;">
+                    <thead>
+                    <tr>
+                        <th>Nazwa</th>
+                        <th>Opis</th>
+                        <th>Waga</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in context.Item?.Items)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.Description</td>
+                                <td>@item.Weight</td>
+                            </tr>
                     }
-                }
-                </tbody>
-            </MudSimpleTable>
+                    </tbody>
+                </MudSimpleTable>
+            }
         </ChildRowContent>
 
     </MudDataGrid>
 }
 
 @code {
-    [Parameter] public HashSet<Set>? Sets { get; set; }
-
     [Parameter] public EventCallback<Set> OnEdit { get; set; }
     [Parameter] public EventCallback<Guid?> OnDelete { get; set; }
+    [Parameter] public HashSet<Set>? Sets { get; set; }
 
 
     async Task Edit(CellContext<Set?> context)
@@ -79,13 +80,13 @@ else
         if (result == true) await OnDelete.InvokeAsync(context.Item.Id);
     }
 
-   
 
     async Task OnCommitItemChanges(Set? arg)
     {
-            await OnEdit.InvokeAsync(arg);
+        await OnEdit.InvokeAsync(arg);
     }
-    
+
+
     void OnCanceledEditingItem(Set? item)
     {
         // ZMIANA: Anulowanie edycji - opcjonalnie można dodać logikę
