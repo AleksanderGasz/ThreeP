@@ -1,9 +1,23 @@
 namespace ThreeP.Modules.Trips;
 
-public class TripService(IDbContextFactory<ApplicationDbContext> dbFactory, ILogger<TripService> logger)
-    : GenericService<Trip>(dbFactory)
+public class TripService(IDbContextFactory<ApplicationDbContext> dbFactory, ILoggerFactory loggerFactory)
+    : GenericService<Trip>(dbFactory, loggerFactory)
 {
-    public async Task<Result> UpdateTrip(Trip? incoming, CancellationToken cancel = default)
+    public async Task<Result> UpsertTrip(Trip? incoming, CancellationToken cancel = default)
+    {
+        if (incoming is null) return Result.Fail(LogText.ObjectIsNull);
+        return await Upsert(incoming, (src, dst) =>
+        {
+            dst.Name = src.Name;
+            dst.Description = src.Description;
+            dst.SetId = src.SetId;
+            dst.UserId = src.UserId;
+        }, cancel);
+    }
+
+
+    /*
+    public async Task<Result> UpsertTrip(Trip? incoming, CancellationToken cancel = default)
     {
         if (incoming is null) return Result.Fail(LogText.ObjectIsNull);
         try
@@ -12,7 +26,11 @@ public class TripService(IDbContextFactory<ApplicationDbContext> dbFactory, ILog
 
             var exist = await db.Trips.AsNoTracking().AnyAsync(x => x.Id == incoming.Id, cancel);
 
-            var trip = new Trip { Id = incoming.Id };
+            var trip = new Trip
+            {
+                Id = incoming.Id,
+                UserId = incoming.UserId,
+            };
             if (!exist) await db.Trips.AddAsync(trip, cancel);
             else db.Trips.Attach(trip);
 
@@ -21,7 +39,9 @@ public class TripService(IDbContextFactory<ApplicationDbContext> dbFactory, ILog
             trip.SetId = incoming.SetId;
 
             var saved = await db.SaveChangesAsync(cancel) > 0;
-            return saved ? Result.Ok().WithSuccess(LogText.ObjectSaved) : Result.Fail(LogText.CantSave);
+            return saved
+                ? Result.Ok().WithSuccess(LogText.SaveOk)
+                : Result.Fail($"{LogText.SaveFail} - {incoming.Name}");
         }
         catch (OperationCanceledException e)
         {
@@ -33,4 +53,5 @@ public class TripService(IDbContextFactory<ApplicationDbContext> dbFactory, ILog
             return Result.Fail([LogText.ExceptionOccurred, e.Message]);
         }
     }
+*/
 }

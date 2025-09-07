@@ -1,7 +1,7 @@
 @namespace ThreeP.Modules.Items
 @inject IDialogService DialogService
 
-@if (!Sets.Any())
+@if (Sets is null||!Sets.Any())
 {
     <NoData/>
 }

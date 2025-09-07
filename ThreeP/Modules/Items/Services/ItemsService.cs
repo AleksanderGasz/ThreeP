@@ -1,35 +1,42 @@
 ﻿namespace ThreeP.Modules.Items;
 
-public class ItemsService(IDbContextFactory<ApplicationDbContext> contextFactory, ILogger<ItemsService> logger)
-    : GenericService<Item>(contextFactory)
+public class ItemsService(IDbContextFactory<ApplicationDbContext> dbFactory, ILoggerFactory loggerFactory)
+    : GenericService<Item>(dbFactory,loggerFactory)
 {
-   public async Task<Result> UpdateItem(Item? item)
+    public async Task<Result> UpsertItem(Item? incoming, CancellationToken cancel=default)
     {
-        if (item is null) return Result.Fail([LogText.ObjectIsNull]);
+        if (incoming is null) return Result.Fail([LogText.ObjectIsNull]);
         try
         {
-            await using var dbContext = await contextFactory.CreateDbContextAsync();
+            await using var db = await dbFactory.CreateDbContextAsync(cancel);
 
-            var exist = await dbContext.Items.FindAsync(item.Id);
-            if (exist is null)
+            var exist = await db.Items.AsNoTracking().AnyAsync(x => x.Id == incoming.Id, cancel);
+            var item = new Item()
             {
-                await dbContext.Items.AddAsync(item);
-            }
-            else
-            {
-                exist.Name = item.Name;
-                exist.Description = item.Description;
-                exist.Weight = item.Weight;
-            }
+                Id = incoming.Id,
+                UserId = incoming.UserId
+            };
 
-            await dbContext.SaveChangesAsync();
-            return Result.Ok().WithSuccess(LogText.ObjectSaved);
-            
+            if (!exist) await db.Items.AddAsync(item, cancel);
+            else db.Items.Attach(item);
+
+            item.Name = incoming.Name;
+            item.Description = incoming.Description;
+            item.Weight = incoming.Weight;
+
+            var saved = await db.SaveChangesAsync() > 0;
+            return saved
+                ? Result.Ok().WithSuccess(LogText.SaveOk)
+                : Result.Fail($"{LogText.SaveFail} - {incoming.Name}");
+        }
+        catch (OperationCanceledException e)
+        {
+            return Result.Fail($"{LogText.OperationCancelled} - {e.Message}");
         }
         catch (Exception e)
         {
-            logger.LogError(e, "{LogText}, Id: {Id}", LogText.ExceptionOccurred,item.Id);
-            return Result.Fail([LogText.ExceptionOccurred, e.Message]);
+            // logger.LogError(e, "{LogText}, Id: {Id}", LogText.ExceptionOccurred, incoming.Id);
+            return Result.Fail([LogText.Exception, e.Message]);
         }
     }
 }

@@ -8,21 +8,21 @@ public record LogText
     public static string OperationCancelled => Format("Operation cancelled");
     
     // EXCEPTIONS
-public static string? ExceptionOccurred => Format("Exception occurred: ");
+public static string? Exception => Format("Exception occurred: ");
     
     // DB
 
     //? Ok
-    public static string ObjectSaved => Format("Object Saved");
-    public static string ObjectDeleted => Format("Object Deleted");
+    public static string SaveOk => Format("Object Saved");
+    public static string DeletedOk => Format("Object Deleted");
 
     //! Error
     public static string CantFetch => Format("Can't Fetch");
     public static string CantFind => Format("Can't Find");
-    public static string CantUpdate => Format("Can't Update");
-    public static string CantDelete => Format("Can't Delete");
-    public static string CantAdd => Format("Can't Add");
-    public static string CantSave => Format("Can't Save in DB");
+    public static string UpdateFail => Format("Can't Update");
+    public static string DeleteFail => Format("Can't Delete");
+    public static string AddFail => Format("Can't Add");
+    public static string SaveFail => Format("Can't Save in DB");
     public static string NoChangesToSave => Format("No changes to save...");
 
     

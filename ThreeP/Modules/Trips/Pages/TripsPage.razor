@@ -10,16 +10,18 @@
 <TripGrid T="Trip" Items="Trips" OnEdit="Edit" OnDelete="Delete"/>
 
 @code {
+    [CascadingParameter] public AppState AppState { get; set; }
+    Guid? userId => AppState.UserId;
     [PersistentState] List<Trip>? Trips { get; set; } = [];
     Trip item = new();
 
     protected override async Task OnInitializedAsync() => await Get();
 
 
-    async Task Get() => Trips = await TripService.Get([x=>x.Set]);
+    async Task Get() => Trips = await TripService.Get([x => x.Set], [x=>x.UserId==userId]);
 
 
-    async Task Edit(Trip arg)=>item = arg;
+    async Task Edit(Trip arg) => item = arg;
 
 
     async Task Delete(Guid? id)
@@ -33,7 +35,8 @@
     async Task UpdateItem(Trip? arg)
     {
         item = arg;
-        var result = await TripService.UpdateTrip(item);
+        item.UserId = userId;
+        var result = await TripService.UpsertTrip(item);
         ShowResultService.ShowResultMessage(result);
         await Get();
     }

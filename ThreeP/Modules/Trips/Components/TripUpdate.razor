@@ -34,9 +34,11 @@
 </MBox>
 
 @code {
+    [CascadingParameter] public AppState AppState { get; set; }
     [Parameter] public EventCallback<T> ItemChanged { get; set; }
     [Parameter] public T? Item { get; set; }
     List<Set> sets = [];
+    Guid? userId=>AppState.UserId;
 
     string[]? errors;
     bool success;
@@ -49,7 +51,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        sets = (await SetService.Get()).ToList();
+        sets = (await SetService.Get(filters:[x=>x.UserId==userId])).ToList();
     }
 
 

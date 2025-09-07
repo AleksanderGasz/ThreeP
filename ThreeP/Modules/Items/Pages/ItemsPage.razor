@@ -3,6 +3,7 @@
 @inject ItemsService ItemsService
 @inject SetService SetService
 @inject ShowResultService ShowResultService
+@attribute [Authorize]
 
 <ItemUpdate Item="item" ItemChanged="UpdateItem"/>
 <MudStack Row StretchItems="StretchItems.All" Justify="Justify.SpaceBetween">
@@ -11,9 +12,11 @@
 </MudStack>
 
 @code {
-    Item? item;
+    [CascadingParameter] public AppState AppState { get; set; }
     [PersistentState] public List<Item>? Items { get; set; }
     [PersistentState] public List<Set>? Sets { get; set; } = [];
+    Item? item;
+    Guid? userId => AppState.UserId;
 
 
     protected override async Task OnInitializedAsync()
@@ -24,19 +27,17 @@
 
 
 // ITEMS
-    async Task GetItems() => Items = await ItemsService.Get([x => x.Sets]);
+    async Task GetItems() => Items = await ItemsService.Get([x => x.Sets], filters: [x => x.UserId ==userId]);
 
 
-    async Task EditItem(Item arg)
-    {
-        item = arg;
-    }
+    async Task EditItem(Item arg) => item = arg;
 
 
     async Task UpdateItem(Item? arg)
     {
         item = arg;
-        var result = await ItemsService.UpdateItem(item);
+        item.UserId=userId;
+        var result = await ItemsService.UpsertItem(item);
         ShowResultService.ShowResultMessage(result);
         await GetItems();
     }
@@ -51,11 +52,12 @@
 
 
     // SETS
-    async Task GetSets() => Sets = await SetService.Get([x => x.Items]);
+    async Task GetSets() => Sets = await SetService.Get([x => x.Items],[x=>x.UserId==userId]);
 
 
     async Task UpdateSet(Set? arg)
     {
+        arg.UserId = userId;
         var result = await SetService.UpdateSet(arg);
         ShowResultService.ShowResultMessage(result);
         await GetSets();
