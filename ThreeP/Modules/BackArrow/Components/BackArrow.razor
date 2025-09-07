@@ -1,0 +1,18 @@
+@namespace Mac.Modules.BackArrow
+@inject  NavigationManager NavigationManager
+
+<MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="GoBack"/>
+
+@code {
+    [Parameter] public Uri? BackUri { get; set; }
+    async Task GoBack()
+    {
+        var historyNav=NavigationManager.HistoryEntryState;
+         if (BackUri is not null)
+            NavigationManager.NavigateTo(BackUri.ToString());
+         else if (!string.IsNullOrWhiteSpace(historyNav ))
+            NavigationManager.NavigateTo(historyNav);
+        else
+            NavigationManager.NavigateTo("/");
+    }
+}

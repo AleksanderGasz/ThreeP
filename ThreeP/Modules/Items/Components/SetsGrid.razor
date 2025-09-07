@@ -11,9 +11,8 @@ else
                  ReadOnly="false" EditMode="DataGridEditMode.Form" EditTrigger="DataGridEditTrigger.Manual"
                  CommittedItemChanges="OnCommitItemChanges" CanceledEditingItem="OnCanceledEditingItem"
     >
-
         <ToolBarContent>
-            <MudText Color="Color.Warning">Sety</MudText>
+            <MTitle Name="Sety"/>
         </ToolBarContent>
         <Columns>
             <HierarchyColumn T="Set"/>
@@ -22,11 +21,11 @@ else
             <PropertyColumn Property="x => x.Weight" Title="Waga" Editable="false"/>
 
             @* ACTIONS *@
-            <TemplateColumn StickyRight Title="Akcje" CellClass="d-flex justify-center" CellStyle="width:120px;"
-                            HeaderStyle="width:120px; ">
+            <TemplateColumn StickyRight Title="Akcje"  HeaderClass="d-flex justify-center" HeaderStyle="width:120px; "
+                            CellStyle="width:120px; text-align:center; ">
                 <CellTemplate>
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small"
-                                   OnClick="@context.Actions.StartEditingItemAsync"/>
+                                   OnClick="@context.Actions.StartEditingItemAsync" Class="me-3"/>
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
                                    OnClick="@(e => Delete(context))"/>
                 </CellTemplate>
@@ -65,7 +64,7 @@ else
 @code {
     [Parameter] public EventCallback<Set> OnEdit { get; set; }
     [Parameter] public EventCallback<Guid?> OnDelete { get; set; }
-    [Parameter] public HashSet<Set>? Sets { get; set; }
+    [Parameter] public List<Set>? Sets { get; set; }
 
 
     async Task Edit(CellContext<Set?> context)

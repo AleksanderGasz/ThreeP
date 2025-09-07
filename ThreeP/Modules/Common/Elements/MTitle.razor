@@ -6,8 +6,8 @@
 @code {
     [Parameter] public string? Name { get; set; }
     [Parameter] public Typo Typo { get; set; } = GlobalStyles.HeaderTypo;
-    [Parameter] public bool Uppercase { get; set; }
     [Parameter] public Color Color { get; set; } = GlobalStyles.TextColor;
+    [Parameter] public bool Uppercase { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
     string OwnStyle => $" {(Uppercase ? "text-transform: uppercase;" : "")}";

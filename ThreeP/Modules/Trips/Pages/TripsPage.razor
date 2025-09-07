@@ -16,13 +16,10 @@
     protected override async Task OnInitializedAsync() => await Get();
 
 
-    async Task Get() => Trips = (await TripService.Get()).ToList();
+    async Task Get() => Trips = await TripService.Get([x=>x.Set]);
 
 
-    async Task Edit(Trip arg)
-    {
-        item = arg;
-    }
+    async Task Edit(Trip arg)=>item = arg;
 
 
     async Task Delete(Guid? id)

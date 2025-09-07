@@ -1,7 +1,7 @@
 ﻿@namespace Mac.Modules.Elements
 <MudPaper Elevation="GlobalStyles.Elevation" Class="my-10 pa-4">
     <MudStack Row Justify="Justify.SpaceBetween">
-        <title Name="@Name" Color="@Color" Typo="Typo.body1"/>
+        <MTitle Name="@Name" Color="@Color" Typo="Typo"/>
         <MudSpacer/>
         @if (HeaderRight is not null)
         {
@@ -18,7 +18,8 @@
 
 @code {
     [Parameter] public string? Name { get; set; }
-    [Parameter] public Color Color { get; set; } = Color.Primary;
+    [Parameter] public Typo Typo { get; set; } = GlobalStyles.HeaderTypo;
+    [Parameter] public Color Color { get; set; } = GlobalStyles.TextColor;
     [Parameter] public bool Expanded { get; set; }
     [Parameter] public RenderFragment? HeaderRight { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }

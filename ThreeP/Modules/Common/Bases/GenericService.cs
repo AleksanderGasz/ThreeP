@@ -4,7 +4,7 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbContext
     where T : BaseModel, new()
 {
     //GET
-    public async Task<IEnumerable<T>> Get(
+    public async Task<List<T>> Get(
         List<Expression<Func<T, object>>>? includes = null,
         List<Expression<Func<T, bool>>>? filters = null,
         Expression<Func<T, object>>? orderBy = null,
@@ -15,13 +15,10 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbContext
         IQueryable<T> query = dbContext.Set<T>();
         if (includes is not null && includes.Any()) includes.ForEach(x => { query = query.Include(x); });
         if (filters is not null && filters.Any()) filters.ForEach(x => { query = query.Where(x); });
-        if (orderBy is not null)
-        {
-            query = query.OrderBy(orderBy);
-        }
+        if (orderBy is not null) query = query.OrderBy(orderBy);
 
-        if (asNoTracking) return await query.AsNoTracking().ToHashSetAsync();
-        return await query.ToHashSetAsync();
+        if (asNoTracking) return await query.AsNoTracking().ToListAsync();
+        return   await query.ToListAsync();
     }
 
 

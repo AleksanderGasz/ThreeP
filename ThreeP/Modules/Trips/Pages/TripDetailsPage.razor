@@ -1,0 +1,39 @@
+@page "/trip-details/{Id:guid?}"
+@namespace ThreeP.Modules.Trips
+@inject TripService TripService
+@inject ShowResultService ShowResultService
+
+<BackArrow />
+<MTitle Name="Szczegóły podróży"/>
+@if (trip is null)
+{
+    <NoData/>
+}
+else
+{
+    <p>Trip</p>
+    @trip.Name
+    @trip.Description
+
+    <p>Set</p>
+    @trip?.Set?.Name
+    @trip?.Set?.Description
+    @trip?.Set?.Weight
+}
+
+@code {
+    [Parameter] public Guid? Id { get; set; }
+    Trip? trip =null;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Get();
+    }
+
+
+    async Task Get()
+    {
+        trip = await TripService.GetById(Id, [x => x.Set]);
+    }
+}

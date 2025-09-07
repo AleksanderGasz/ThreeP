@@ -2,7 +2,7 @@
 
 <div style="text-align: end;">
 </div>
-<Mbox Name="Dodaj/Edytuj przedmiot" Color="Color.Warning" Expanded="expanded">
+<MBox Name="Dodaj/Edytuj"  Expanded="expanded">
     <HeaderRight>
         <MudButton Disabled="addDisabled" Color="Color.Success" Variant="Variant.Filled" Size="Size.Medium" OnClick="Add">Dodaj</MudButton>
     </HeaderRight>
@@ -14,12 +14,13 @@
             <MudNumericField @bind-Value="@Item?.Weight" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg"
                              Clearable/>
             <MudStack Row Justify="Justify.FlexEnd" Class="@GlobalStyles.MarginTop">
+                <MudButton  Variant="Variant.Filled" Color="Color.Error" OnClick="Cancel" Class="me-3">Anuluj</MudButton>
                 <MudButton Disabled="@(!form.IsValid)" Variant="Variant.Filled" Color="Color.Success" OnClick="Ok">OK
                 </MudButton>
             </MudStack>
         </MudForm>
     </ChildContent>
-</Mbox>
+</MBox>
 
 @code {
     [Parameter] public EventCallback<Item> ItemChanged { get; set; }
@@ -68,4 +69,12 @@
         expanded = false;
         addDisabled = false;
     }
+    
+    async Task Cancel()
+    {
+        expanded = false;
+        addDisabled = false;
+        await form.ResetAsync();
+    }
+
 }

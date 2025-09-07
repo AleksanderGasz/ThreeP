@@ -8,6 +8,7 @@ public static class GlobalStyles
     public static string MarginTop{ get; } ="mt-4";
     public static string VerticalSpacer{ get; } ="mb-10";
     public static Color TextColor { get; } = Color.Warning;
-    public static Typo HeaderTypo { get; } = Typo.h5;
+    public static Typo HeaderTypo { get; } = Typo.body1;
+    public static Typo TextTypo { get; } = Typo.body1;
 
 }

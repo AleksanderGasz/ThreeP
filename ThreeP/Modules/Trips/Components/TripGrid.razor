@@ -1,6 +1,7 @@
 @namespace ThreeP.Modules.Trips
 @inject IDialogService DialogService
-@typeparam T where T : Trip,new()
+@inject NavigationManager NavigationManager
+@typeparam T where T : Trip
 
 @if (Items?.Any() == false)
 {
@@ -8,22 +9,31 @@
 }
 else
 {
-    <MudDataGrid T="T" Items="Items" Elevation="GlobalStyles.Elevation">
+    <MudDataGrid T="T" Items="Items" Elevation="GlobalStyles.Elevation" RowClick="Details">
         <ToolBarContent>
             <MTitle Name="Tripy"/>
         </ToolBarContent>
         <Columns>
             @* COLUMS *@
             <HierarchyColumn T="Trip"/>
-            <PropertyColumn   Property="x=>x.Name"/>
+            <PropertyColumn Property="x=>x.Name" Title="Nazwa"/>
+            <PropertyColumn Property="x=>x.Description" Title="Opis"/>
+            <PropertyColumn Property="x=>x.Set.Name" Title="Set"/>
+            <TemplateColumn Title="Set (Waga)">
+                <CellTemplate>
+                    @context.Item.Set?.Name 
+                    (@context.Item.Set?.Weight kg)
+                </CellTemplate>
+            </TemplateColumn>
             @* ACTIONS *@
-            <TemplateColumn StickyRight Title="Akcje" CellClass="d-flex justify-center" CellStyle="width:120px;"
-                            HeaderStyle="width:120px; ">
+            <TemplateColumn StickyRight Title="Akcje"
+                            HeaderClass="d-flex justify-center" HeaderStyle="width:120px; "
+                            CellStyle="width:120px; text-align:center; ">
                 <CellTemplate>
 
-                    <MudIconButton  Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small"
-                                   OnClick="@(e=>Edit(context))"/>
-                    <MudIconButton  Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small"
+                                   OnClick="@(e => Edit(context))" Class="me-3"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
                                    OnClick="@(e => Delete(context))"/>
                 </CellTemplate>
             </TemplateColumn>
@@ -55,4 +65,10 @@ else
 
 
     void OnCancelEditing(T? item) => StateHasChanged();
+
+
+    async Task Details(DataGridRowClickEventArgs<T> context)
+    {
+        NavigationManager.NavigateTo($"/trip-details/{context.Item.Id}", new NavigationOptions{HistoryEntryState = NavigationManager.Uri});
+    }
 }

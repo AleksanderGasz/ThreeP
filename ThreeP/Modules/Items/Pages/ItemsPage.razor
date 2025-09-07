@@ -5,15 +5,15 @@
 @inject ShowResultService ShowResultService
 
 <ItemUpdate Item="item" ItemChanged="UpdateItem"/>
-<MudStack Row StretchItems="StretchItems.All">
+<MudStack Row StretchItems="StretchItems.All" Justify="Justify.SpaceBetween">
     <ItemsGrid Items="Items" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet"/>
     <SetsGrid Sets="Sets" OnEdit="EditSet" OnDelete="DeleteSet"/>
 </MudStack>
 
 @code {
     Item? item;
-    [PersistentState] public HashSet<Item>? Items { get; set; }
-    [PersistentState] public HashSet<Set>? Sets { get; set; } = [];
+    [PersistentState] public List<Item>? Items { get; set; }
+    [PersistentState] public List<Set>? Sets { get; set; } = [];
 
 
     protected override async Task OnInitializedAsync()
@@ -24,7 +24,7 @@
 
 
 // ITEMS
-    async Task GetItems() => Items = (await ItemsService.Get()).ToHashSet();
+    async Task GetItems() => Items = await ItemsService.Get([x => x.Sets]);
 
 
     async Task EditItem(Item arg)
@@ -51,7 +51,7 @@
 
 
     // SETS
-    async Task GetSets() => Sets = (await SetService.Get([x => x.Items])).ToHashSet();
+    async Task GetSets() => Sets = await SetService.Get([x => x.Items]);
 
 
     async Task UpdateSet(Set? arg)
@@ -72,7 +72,7 @@
 
     async Task DeleteSet(Guid? id)
     {
-        var result=await SetService.Delete(id);
+        var result = await SetService.Delete(id);
         ShowResultService.ShowResultMessage(result);
         await GetSets();
     }
