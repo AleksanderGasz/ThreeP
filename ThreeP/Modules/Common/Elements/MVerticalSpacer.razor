@@ -1,0 +1,20 @@
+﻿@namespace Mac.Modules.Elements
+<div class="@ComputedClass" style="@ComputedStyle"></div>
+
+@code{
+    /// <summary>
+    /// Given as Mud Blazor Class e.g: mb-10
+    /// </summary>
+    [Parameter] public string? VerticalSpace { get; set; } = GlobalStyles.VerticalSpacer;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    string ComputedClass => new CssBuilder()
+        .AddClass(VerticalSpace, !string.IsNullOrWhiteSpace(VerticalSpace))
+        .AddClass(Class, !string.IsNullOrWhiteSpace(Class))
+        .Build();
+    
+    string ComputedStyle => new StyleBuilder()
+        .AddStyle(Style, !string.IsNullOrWhiteSpace(Style))
+        .Build();
+}

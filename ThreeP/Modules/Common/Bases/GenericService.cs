@@ -50,7 +50,8 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbDbFacto
     public async Task<T> GetById(
         Guid? id,
         List<Expression<Func<T, object>>>? includes = null,
-        List<Expression<Func<T, bool>>>? filters = null)
+        List<Expression<Func<T, bool>>>? filters = null,
+        bool asNoTracking = true)
     {
         if (id is null) return null;
         await using var dbContext = await dbDbFactory.CreateDbContextAsync();
@@ -58,7 +59,8 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbDbFacto
         IQueryable<T> query = dbContext.Set<T>();
         if (includes is not null && includes.Any()) includes.ForEach(x => { query = query.Include(x); });
         if (filters is not null && filters.Any()) filters.ForEach(x => { query = query.Where(x); });
-        return await query.FirstOrDefaultAsync();
+        if (asNoTracking)return await query.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        return await query.FirstOrDefaultAsync(x=>x.Id==id);
     }
 
 

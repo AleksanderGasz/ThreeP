@@ -8,4 +8,7 @@ public class Trip : BaseModelWithUser
     // NAV
     public Guid? SetId { get; set; }
     public Set Set { get; set; }
+
+    // public TodoList TodoList { get; set; }
+    // public ICollection<TripItemStatus> TripItemsStatus { get; set; } = new HashSet<TripItemStatus>();
 }

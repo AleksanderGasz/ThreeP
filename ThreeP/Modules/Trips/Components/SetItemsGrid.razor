@@ -1,0 +1,67 @@
+@namespace ThreeP.Modules.Trips
+@inject IDialogService DialogService
+
+@if (Set?.Items?.Any() == false)
+{
+    <NoData/>
+}
+else
+{
+    <MudDataGrid Items="Set?.Items" Elevation="GlobalStyles.Elevation" MultiSelection
+                 @bind-SelectedItems="selectedItems">
+        <ToolBarContent>
+            @* <MudText Color="Color.Warning">Przedmioty</MudText> *@
+            <MTitle Name="@Set?.Name"/>
+            <MudSpacer/>
+        </ToolBarContent>
+        <Columns>
+            @* <HierarchyColumn T="Item"/> *@
+            <SelectColumn T="Item"/>
+            <PropertyColumn Property="x => x.Name" Title="Nazwa"/>
+            <PropertyColumn Property="x => x.Description" Title="Opis"/>
+            <PropertyColumn Property="x => x.Weight" Title="Waga"/>
+
+            @* ACTIONS *@
+            <TemplateColumn StickyRight Title="Akcje"
+                            HeaderClass="d-flex justify-center" HeaderStyle="width:120px; "
+                            CellStyle="width:120px; text-align:center; ">
+                <CellTemplate>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small"
+                                   OnClick="@(()=>Edit(context.Item))" Class="me-3"/>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
+                                   OnClick="@(()=>Delete(context.Item))"/>
+                </CellTemplate>
+            </TemplateColumn>
+
+        </Columns>
+
+    </MudDataGrid>
+}
+
+@code {
+    [Parameter] public EventCallback<Item> OnEdit { get; set; }
+
+    [Parameter] public EventCallback<Guid?> OnDelete { get; set; }
+
+    // [Parameter] public EventCallback<Set> OnSetCreating { get; set; }
+    // [Parameter] public List<Item>? Items { get; set; }
+    [Parameter] public Set? Set { get; set; }
+
+    HashSet<Item>? selectedItems = [];
+
+    MudForm? setForm;
+    string? setName;
+
+
+    async Task Edit(Item? arg)
+    {
+        await OnEdit.InvokeAsync(arg);
+    }
+
+
+    async Task Delete(Item? arg)
+    {
+        var result = await DialogService.ShowMessageBox("Uwaga!", "Czy na pewno chcesz skasować?", yesText: "Usuń!", cancelText: "Anuluj");
+        if (result == true) await OnDelete.InvokeAsync(arg.Id);
+    }
+}

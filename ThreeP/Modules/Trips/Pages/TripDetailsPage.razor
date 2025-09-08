@@ -1,39 +1,108 @@
 @page "/trip-details/{Id:guid?}"
 @namespace ThreeP.Modules.Trips
 @inject TripService TripService
+@inject SetService SetService
 @inject ShowResultService ShowResultService
+@attribute [Authorize]
 
-<BackArrow />
-<MTitle Name="Szczegóły podróży"/>
+
+
 @if (trip is null)
 {
     <NoData/>
 }
 else
 {
-    <p>Trip</p>
-    @trip.Name
-    @trip.Description
+    <MudGrid>
+        <MudItem xs="12" md="6">
+            <MudStack Row>
+                <BackArrow/>
+                <MTitle Name="@trip?.Name"/>
+            </MudStack>
+        </MudItem>
 
-    <p>Set</p>
-    @trip?.Set?.Name
-    @trip?.Set?.Description
-    @trip?.Set?.Weight
+        @* WEIGHT *@
+        <MudItem xs="12" md="6" Class="d-flex justify-end align-center">
+            <MudStack Row>
+                <MudText Color="Color.Default" Typo="Typo.h6" Class="me-2">Waga:</MudText>
+                <MudText Color="Color.Warning"
+                         Typo="Typo.h6">@(set?.Weight.HasValue == true ? $"{set?.Weight} Kg" : string.Empty)</MudText>
+            </MudStack>
+        </MudItem>
+
+        @* DESCRIPTION *@
+        <MudItem xs="12" md="6">
+            @if (!string.IsNullOrWhiteSpace(trip.Description))
+            {
+                <MudPaper Elevation="GlobalStyles.Elevation"
+                          Class="@GlobalStyles.Padding">
+                    <MudText Typo="Typo.caption" Color="Color.Info" HtmlTag="p" Inline="false">Opis</MudText>
+                    <MudText Typo="Typo.inherit" Color="Color.Default" HtmlTag="p">@trip.Description</MudText>
+                </MudPaper>
+            }
+        </MudItem>
+
+        <MudItem xs="12" md="6">
+            @* CHANGE SET *@
+            <MudSelect T="Guid?" Value="trip.SetId" ValueChanged="ChangeSet" Variant="Variant.Outlined"
+                       Class="@GlobalStyles.VerticalSpacer">
+                @foreach (var set in sets)
+                {
+                    <MudSelectItem Value="set.Id">@set.Name</MudSelectItem>
+                }
+            </MudSelect>
+
+            <ItemUpdate Item="item" ItemChanged="UpdateSet" />
+            <MVerticalSpacer />
+            <SetItemsGrid @key="set.Id" Set="set" OnEdit="Edit"/>
+
+        </MudItem>
+    </MudGrid>
 }
 
 @code {
+    [CascadingParameter] public AppState AppState { get; set; }
+    Guid? userId => AppState.UserId;
     [Parameter] public Guid? Id { get; set; }
-    Trip? trip =null;
+    Item? item;
+    Trip? trip;
+    Set? set;
+    List<Set> sets = [];
 
 
     protected override async Task OnInitializedAsync()
     {
         await Get();
+        sets = await SetService.Get(filters: [x => x.UserId == userId]);
+        await GetSet();
     }
 
 
-    async Task Get()
+    async Task Get() => trip = await TripService.GetById(Id, [x => x.Set], [x => x.UserId == userId]);
+    async Task GetSet() => set = await SetService.GetById(trip?.SetId, [x => x.Items], [x => x.UserId == userId]);
+
+
+    async Task Edit(Item arg) => item = arg;
+
+
+    async Task ChangeSet(Guid? arg)
     {
-        trip = await TripService.GetById(Id, [x => x.Set]);
+        trip.SetId = arg;
+        await GetSet();
+        var result = await TripService.UpsertTrip(trip);
+        ShowResultService.ShowResultMessage(result);
+        await Get();
+    }
+
+
+    async Task UpdateSet(Item? arg)
+    {
+        set.Items?.Remove(arg);
+        set.Items?.Add(arg);
+        set.UserId = userId;
+        // var result = await SetService.UpdateSet(set);
+        var result = await SetService.UpsertSet(set);
+        ShowResultService.ShowResultMessage(result);
+        await GetSet();
     }
 }

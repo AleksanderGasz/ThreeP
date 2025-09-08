@@ -1,5 +1,5 @@
 ﻿@namespace Mac.Modules.Elements
-<MudPaper Elevation="GlobalStyles.Elevation" Class="my-10 pa-4">
+<MudPaper Elevation="GlobalStyles.Elevation" Class="@($"{Class} pa-4")" Style="@Styles">
     <MudStack Row Justify="Justify.SpaceBetween">
         <MTitle Name="@Name" Color="@Color" Typo="Typo"/>
         <MudSpacer/>
@@ -17,10 +17,12 @@
 
 
 @code {
+    [Parameter] public RenderFragment? HeaderRight { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public string? Name { get; set; }
     [Parameter] public Typo Typo { get; set; } = GlobalStyles.HeaderTypo;
     [Parameter] public Color Color { get; set; } = GlobalStyles.TextColor;
     [Parameter] public bool Expanded { get; set; }
-    [Parameter] public RenderFragment? HeaderRight { get; set; }
-    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Styles { get; set; }
 }

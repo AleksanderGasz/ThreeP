@@ -14,5 +14,6 @@ public class Set:BaseModelWithUser
     public ICollection<Item> Items { get; set; } = new HashSet<Item>();
 
     public ICollection<Trip> Trips { get; set; }= new HashSet<Trip>();
+    
 
 }

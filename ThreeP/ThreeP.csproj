@@ -35,4 +35,9 @@
       <_ContentIncludedByDefault Remove="Modules\Olx\Pages\OlxCallBack.razor" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Modules\Todo\Components\" />
+      <Folder Include="Modules\Todo\Services\" />
+    </ItemGroup>
+
 </Project>

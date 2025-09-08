@@ -5,9 +5,15 @@
 
 @* <MTitle Name="Tripy"/> *@
 
-<TripUpdate T="Trip" Item="item" ItemChanged="UpdateItem"/>
-<MacVerticalSpacer/>
-<TripGrid T="Trip" Items="Trips" OnEdit="Edit" OnDelete="Delete"/>
+<MudGrid>
+    <MudItem xs="12">
+        <TripUpdate T="Trip" Item="item" ItemChanged="UpdateItem"/>
+    </MudItem>
+    <MudItem xs="12">
+        <TripGrid T="Trip" Items="Trips" OnEdit="Edit" OnDelete="Delete"/>
+    </MudItem>
+</MudGrid>
+@* <MacVerticalSpacer/> *@
 
 @code {
     [CascadingParameter] public AppState AppState { get; set; }
@@ -18,7 +24,7 @@
     protected override async Task OnInitializedAsync() => await Get();
 
 
-    async Task Get() => Trips = await TripService.Get([x => x.Set], [x=>x.UserId==userId]);
+    async Task Get() => Trips = await TripService.Get([x => x.Set], [x => x.UserId == userId]);
 
 
     async Task Edit(Trip arg) => item = arg;

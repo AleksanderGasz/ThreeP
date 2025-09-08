@@ -10,6 +10,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     // public DbSet<SetItem> SetItems { get; set; }
     public DbSet<Trip> Trips { get; set; }
+    // public DbSet<TodoList> TodoLists { get; set; }
+    // public DbSet<TodoItem> TodoItems { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -51,5 +53,19 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         // TRIPS
         builder.Entity<Trip>().HasOne(x => x.Set).WithMany(x => x.Trips).HasForeignKey(x => x.SetId);
+        // builder.Entity<Trip>().HasOne(x => x.TodoList).WithOne(x => x.Trip).HasForeignKey<TodoList>(x => x.TripId);
+        
+        // TODOLIST
+        /*builder.Entity<TodoList>()
+            .HasMany(x => x.TodoItems)
+            .WithOne(x => x.TodoList)
+            .HasForeignKey(x => x.TodoListId);*/
+        
+        // TRIPITEMSTATUS
+        /*builder.Entity<TripItemStatus>()
+            .HasKey(x => new {  x.TripId, x.ItemId });
+        
+        builder.Entity<TripItemStatus>().HasOne(x=>x.Trip).WithMany(x=>x.TripItemsStatus).HasForeignKey(x=>x.TripId).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<TripItemStatus>().HasOne(x=>x.Item).WithMany().HasForeignKey(x=>x.ItemId).OnDelete(DeleteBehavior.Restrict);*/
     }
 }
