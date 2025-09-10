@@ -23,7 +23,7 @@
     [PersistentState] public List<Item>? Items { get; set; }
     [PersistentState] public List<Set>? Sets { get; set; } = [];
     Item? item;
-    Guid? userId => AppState.UserId;
+    Guid userId => AppState.UserId;
 
 
     protected override async Task OnInitializedAsync()
@@ -34,7 +34,8 @@
 
 
 // ITEMS
-    async Task GetItems() => Items = await ItemsService.Get([x => x.Sets], filters: [x => x.UserId == userId]);
+    // async Task GetItems() => Items = await ItemsService.Get([x => x.Sets], filters: [x => x.UserId == userId]);
+    async Task GetItems() => Items = await ItemsService.Get(filters: [x => x.UserId == userId]);
 
 
     async Task EditItem(Item arg) => item = arg;
@@ -59,7 +60,8 @@
 
 
     // SETS
-    async Task GetSets() => Sets = await SetService.Get([x => x.Items], [x => x.UserId == userId]);
+    // async Task GetSets() => Sets = await SetService.Get([x=>x.Items],[x => x.UserId == userId]);
+    async Task GetSets() => Sets = await SetService.Get(filters:[x => x.UserId == userId]);
 
 
     async Task UpdateSet(Set? arg)

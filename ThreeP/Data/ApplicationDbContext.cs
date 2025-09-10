@@ -8,7 +8,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public DbSet<Set> Sets { get; set; }
 
-    // public DbSet<SetItem> SetItems { get; set; }
+     // public DbSet<SetItem> SetItems { get; set; }
     public DbSet<Trip> Trips { get; set; }
     // public DbSet<TodoList> TodoLists { get; set; }
     // public DbSet<TodoItem> TodoItems { get; set; }
@@ -36,20 +36,22 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         // SETS
         builder.Entity<Set>().HasIndex(s => s.Name); // ZMIANA: szybkie wyszukiwanie po nazwie
-        builder.Entity<Set>().HasMany(x => x.Items).WithMany(x => x.Sets);
+        // builder.Entity<Set>().HasMany(x => x.Items).WithMany(x => x.Sets);
 
-        /*// SETITEMS
-        builder.Entity<SetItem>().HasKey(x=>new {x.SetId, x.ItemId});
+        // SETITEMS
+        /*builder.Entity<SetItem>().HasKey(x=>new {x.SetId, x.ItemId});
 
         builder.Entity<SetItem>()
             .HasOne(x => x.Set)
-            .WithMany(x => x.SetsItems)
-            .HasForeignKey(x => x.SetId);
+            .WithMany(x => x.SetItems)
+            .HasForeignKey(x => x.SetId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<SetItem>()
             .HasOne(x => x.Item)
             .WithMany(x => x.SetItems)
-            .HasForeignKey(x => x.ItemId);*/
+            .HasForeignKey(x => x.ItemId)
+            .OnDelete(DeleteBehavior.Cascade);*/
 
         // TRIPS
         builder.Entity<Trip>().HasOne(x => x.Set).WithMany(x => x.Trips).HasForeignKey(x => x.SetId);

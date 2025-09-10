@@ -2,7 +2,7 @@
 
 public class BaseModel
 {
-    public Guid? Id { get; set; } = Guid.CreateVersion7();
+    public Guid Id { get; set; } = Guid.CreateVersion7();
     public bool IsActive { get; set; } = true;
 
     public DateTime CreateDate { get; set; } = DateTime.Now;
@@ -11,6 +11,6 @@ public class BaseModel
 
 public class BaseModelWithUser : BaseModel
 {
-    public Guid? UserId { get; set; }
+    public Guid UserId { get; set; }
     public ApplicationUser? User { get; set; }
 }

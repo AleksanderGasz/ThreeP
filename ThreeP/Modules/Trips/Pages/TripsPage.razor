@@ -4,21 +4,27 @@
 @inject ShowResultService ShowResultService
 
 @* <MTitle Name="Tripy"/> *@
-
-<MudGrid>
-    <MudItem xs="12">
-        <TripUpdate T="Trip" Item="item" ItemChanged="UpdateItem"/>
-    </MudItem>
-    <MudItem xs="12">
-        <TripGrid T="Trip" Items="Trips" OnEdit="Edit" OnDelete="Delete"/>
-    </MudItem>
-</MudGrid>
+@if (item is null)
+{
+    <NoData/>
+}
+else
+{
+    <MudGrid>
+        <MudItem xs="12">
+            <TripUpdate T="Trip" Item="item" ItemChanged="UpdateItem"/>
+        </MudItem>
+        <MudItem xs="12">
+            <TripGrid T="Trip" Items="Trips" OnEdit="Edit" OnDelete="Delete"/>
+        </MudItem>
+    </MudGrid>
+}
 @* <MacVerticalSpacer/> *@
 
 @code {
     [CascadingParameter] public AppState AppState { get; set; }
-    Guid? userId => AppState.UserId;
-    [PersistentState] List<Trip>? Trips { get; set; } = [];
+    Guid userId => AppState.UserId;
+    [PersistentState] public List<Trip>? Trips { get; set; } = [];
     Trip item = new();
 
     protected override async Task OnInitializedAsync() => await Get();

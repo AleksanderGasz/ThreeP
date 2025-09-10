@@ -1,6 +1,6 @@
 ﻿namespace Mac.Modules.Bases;
 
-public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbDbFactory, ILoggerFactory loggerFactory)
+public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbFactory, ILoggerFactory loggerFactory)
     where T : BaseModel, new()
 {
     readonly ILogger<T> log = loggerFactory.CreateLogger<T>();
@@ -13,7 +13,7 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbDbFacto
         Expression<Func<T, object>>? orderBy = null,
         bool asNoTracking = true)
     {
-        await using var dbContext = await dbDbFactory.CreateDbContextAsync();
+        await using var dbContext = await dbFactory.CreateDbContextAsync();
 
         IQueryable<T> query = dbContext.Set<T>();
         if (includes is not null && includes.Any()) includes.ForEach(x => { query = query.Include(x); });
@@ -31,7 +31,7 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbDbFacto
         Expression<Func<T, object>>? orderBy = null,
         bool asNoTracking = true)
     {
-        await using var dbContext = await dbDbFactory.CreateDbContextAsync();
+        await using var dbContext = await dbFactory.CreateDbContextAsync();
 
         IQueryable<T?> query = dbContext.Set<T>();
         if (includes is not null && includes.Any()) includes.ForEach(x => { query = query.Include(x); });
@@ -54,7 +54,7 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbDbFacto
         bool asNoTracking = true)
     {
         if (id is null) return null;
-        await using var dbContext = await dbDbFactory.CreateDbContextAsync();
+        await using var dbContext = await dbFactory.CreateDbContextAsync();
 
         IQueryable<T> query = dbContext.Set<T>();
         if (includes is not null && includes.Any()) includes.ForEach(x => { query = query.Include(x); });
@@ -70,7 +70,7 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbDbFacto
         if (incoming is null) return Result.Fail(LogText.ObjectIsNull);
         try
         {
-            await using var db = await dbDbFactory.CreateDbContextAsync(cancel);
+            await using var db = await dbFactory.CreateDbContextAsync(cancel);
             var exist = await db.Set<T>().AsNoTracking().AnyAsync(x => x.Id == incoming.Id, cancel);
             var item = new T { Id = incoming.Id};
 
@@ -101,7 +101,7 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbDbFacto
     public async Task Add(T? item)
     {
         if (item is null) return;
-        await using var dbContext = await dbDbFactory.CreateDbContextAsync();
+        await using var dbContext = await dbFactory.CreateDbContextAsync();
         await dbContext.Set<T>().AddAsync(item);
         await dbContext.SaveChangesAsync();
     }
@@ -111,7 +111,7 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbDbFacto
     public async Task Update(T? item)
     {
         if (item is null) return;
-        await using var dbContext = await dbDbFactory.CreateDbContextAsync();
+        await using var dbContext = await dbFactory.CreateDbContextAsync();
 
 
         var exist = await dbContext.Set<T>()
@@ -140,7 +140,7 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbDbFacto
     public async Task<Result> Delete(Guid? id)
     {
         if (id is null) return Result.Fail(LogText.ObjectIsNull);
-        await using var dbContext = await dbDbFactory.CreateDbContextAsync();
+        await using var dbContext = await dbFactory.CreateDbContextAsync();
         var exist = await dbContext.Set<T>().FindAsync(id);
         if (exist is null) return Result.Fail(LogText.ObjectIsNull);
 
