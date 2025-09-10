@@ -3,6 +3,7 @@
 public class ItemsService(IDbContextFactory<ApplicationDbContext> dbFactory, ILoggerFactory loggerFactory)
     : GenericService<Item>(dbFactory,loggerFactory)
 {
+        ILogger logger = loggerFactory.CreateLogger<Item>();
     public async Task<Result> UpsertItem(Item? incoming, CancellationToken cancel=default)
     {
         if (incoming is null) return Result.Fail([LogText.ObjectIsNull]);
@@ -23,6 +24,7 @@ public class ItemsService(IDbContextFactory<ApplicationDbContext> dbFactory, ILo
             item.Name = incoming.Name;
             item.Description = incoming.Description;
             item.Weight = incoming.Weight;
+            
 
             var saved = await db.SaveChangesAsync() > 0;
             return saved
@@ -35,7 +37,7 @@ public class ItemsService(IDbContextFactory<ApplicationDbContext> dbFactory, ILo
         }
         catch (Exception e)
         {
-            // logger.LogError(e, "{LogText}, Id: {Id}", LogText.ExceptionOccurred, incoming.Id);
+            logger.LogError(e, "{LogText}, Id: {Id}", LogText.Exception, incoming.Id);
             return Result.Fail([LogText.Exception, e.Message]);
         }
     }

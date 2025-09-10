@@ -41,9 +41,9 @@
     async Task EditItem(Item arg) => item = arg;
 
 
-    async Task UpdateItem(Item? arg)
+    async Task UpdateItem((Item? item, bool isNew) arg)
     {
-        item = arg;
+        item = arg.item;
         item.UserId = userId;
         var result = await ItemsService.UpsertItem(item);
         ShowResultService.ShowResultMessage(result);
@@ -61,9 +61,10 @@
 
     // SETS
     // async Task GetSets() => Sets = await SetService.Get([x=>x.Items],[x => x.UserId == userId]);
-    async Task GetSets() => Sets = await SetService.Get(filters:[x => x.UserId == userId]);
+    async Task GetSets() => Sets = await SetService.Get([x=>x.Items],filters:[x => x.UserId == userId]);
 
 
+    // async Task UpdateSet((Set? set, bool isNew) arg)
     async Task UpdateSet(Set? arg)
     {
         arg.UserId = userId;

@@ -5,8 +5,6 @@
 @inject ShowResultService ShowResultService
 @attribute [Authorize]
 
-
-
 @if (trip is null)
 {
     <NoData/>
@@ -30,6 +28,8 @@ else
             </MudStack>
         </MudItem>
 
+        @* LEFT SIDE *@
+
         @* DESCRIPTION *@
         <MudItem xs="12" md="6">
             @if (!string.IsNullOrWhiteSpace(trip.Description))
@@ -42,11 +42,13 @@ else
             }
         </MudItem>
 
+
+        @* RIGHT SIDE *@
         <MudItem xs="12" md="6">
             @* CHANGE SET *@
             <MudSelect T="Guid?" Value="trip.SetId" ValueChanged="ChangeSet" Variant="Variant.Outlined"
                        Class="@GlobalStyles.VerticalSpacer">
-                <MudSelectItem T="Guid?" Value="@((Guid?)null)">--Brak--</MudSelectItem>
+                @* <MudSelectItem T="Guid?" Value="@((Guid?)null)">--Brak--</MudSelectItem> *@
 
                 @foreach (var set in sets)
                 {
@@ -54,11 +56,13 @@ else
                 }
             </MudSelect>
 
+            @* UPDATE *@
             <ItemUpdate Item="item" ItemChanged="UpdateSet"/>
+
             <MVerticalSpacer/>
             @if (set is not null)
             {
-                <SetItemsGrid Set="set" OnEdit="Edit"/>
+                <SetItemsGrid Set="set" OnEdit="Edit" OnDelete="(arg)=>DeleteItemFromSet(arg)"/>
             }
 
         </MudItem>
@@ -73,6 +77,7 @@ else
     Trip? trip;
     Set? set;
     List<Set> sets = [];
+    bool isItemNew;
 
 
     protected override async Task OnInitializedAsync()
@@ -103,25 +108,47 @@ else
     }
 
 
-    async Task UpdateSet(Item? arg)
+    async Task UpdateSet((Item? item, bool isNew) arg)
     {
-        /* set.SetItems ??= [];
-        var link = set.SetItems.FirstOrDefault(x => x.ItemId == arg.Id);
-        if (link is null)
+        if (arg.isNew) await AddItemToSet(arg.item);
+        else
         {
-            set.SetItems.Add(new SetItem
+            /* set.SetItems ??= [];
+            var link = set.SetItems.FirstOrDefault(x => x.ItemId == arg.Id);
+            if (link is null)
             {
-                SetId = set.Id,
-                ItemId = arg.Id,
-            });
-        }
-        else set.SetItems.Remove(link);*/
+                set.SetItems.Add(new SetItem
+                {
+                    SetId = set.Id,
+                    ItemId = arg.Id,
+                });
+            }
+            else set.SetItems.Remove(link);*/
 
-        set.Items?.Remove(arg);
-        set.Items?.Add(arg);
-        set.UserId = userId;
-        var result = await SetService.UpdateSet(set);
-        // var result = await SetService.UpsertSet(set);
+            set.Items?.Remove(arg.item);
+            set.Items?.Add(arg.item);
+            set.UserId = userId;
+            var result = await SetService.UpdateSet(set);
+            // var result = await SetService.UpsertSet(set);
+            ShowResultService.ShowResultMessage(result);
+            await GetSet();
+        }
+    }
+
+
+    async Task AddItemToSet(Item? item)
+    {
+        item.UserId = userId;
+        // item.Sets.Add(set);
+        var result = await SetService.AddNewItemToSet(item, set.Id);
+        ShowResultService.ShowResultMessage(result);
+        await GetSet();
+    }
+
+
+    async Task DeleteItemFromSet(Guid? itemId)
+    {
+        var result = await SetService.DeleteItemFromSet(itemId.Value, set.Id, userId);
         ShowResultService.ShowResultMessage(result);
         await GetSet();
     }

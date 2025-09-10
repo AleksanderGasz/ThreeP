@@ -21,7 +21,8 @@
 </MBox>
 
 @code {
-    [Parameter] public EventCallback<Item> ItemChanged { get; set; }
+    [Parameter] public EventCallback<(Item item,bool isNew)> ItemChanged { get; set; }
+    // [Parameter] public EventCallback<bool> IsNewChanged { get; set; }
     [Parameter] public Item? Item { get; set; }
 
     string[]? errors;
@@ -29,6 +30,7 @@
     MudForm? form;
     Item exist = new();
 
+     bool isNew { get; set; }
     bool expanded;
     bool addDisabled;
 
@@ -56,22 +58,26 @@
         Item = new();
         exist = Item;
         expanded = true;
+        isNew = true;
     }
 
 
     async Task Ok()
     {
         exist = Item;
-        await ItemChanged.InvokeAsync(Item);
+        await ItemChanged.InvokeAsync((Item,isNew));
+        // await IsNewChanged.InvokeAsync(IsNew);
         Item = new();
         expanded = false;
         addDisabled = false;
+        isNew = false;
     }
     
     async Task Cancel()
     {
         expanded = false;
         addDisabled = false;
+        isNew = false;
         await form.ResetAsync();
     }
 
