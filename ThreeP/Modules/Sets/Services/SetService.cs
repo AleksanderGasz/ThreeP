@@ -13,20 +13,19 @@ public class SetService(IDbContextFactory<ApplicationDbContext> dbFactory, ILogg
         {
             await using var db = await dbFactory.CreateDbContextAsync(cancel);
 
-            var existSet = await db.Sets
-                .Include(x => x.Items)
+            var incomItems = (incomingSet.Items ?? Enumerable.Empty<Item>()).GroupBy(x => x.Id).Select(x => x.First())
+                .ToDictionary(x => x.Id);
+            var existSet = await db.Sets.Include(x => x.Items)
                 .FirstOrDefaultAsync(x => x.Id == incomingSet.Id && x.UserId == incomingSet.UserId, cancel);
 
-            var incomingItemsIds = incomingSet.Items?.Select(x => x.Id).ToHashSet() ?? [];
-
-            var existItemsById = incomingItemsIds.Count > 0
-                ? await db.Items.ToDictionaryAsync(x => x.Id, cancel)
-                : new Dictionary<Guid, Item>();
-
-
+            // ADD
             if (existSet is null)
             {
-                // ADD
+                var existItems = incomItems.Count == 0
+                    ? []
+                    : await db.Items.Where(x => incomItems.Keys.Contains(x.Id) && x.UserId == incomingSet.UserId)
+                        .ToDictionaryAsync(x => x.Id, cancel);
+
                 var newSet = new Set
                 {
                     Id = incomingSet.Id,
@@ -38,37 +37,53 @@ public class SetService(IDbContextFactory<ApplicationDbContext> dbFactory, ILogg
                     Weight = incomingSet.Weight
                 };
 
-                // foreach (var item in itemsFromDb) existSet.Items.Add(item);
-                foreach (var item in existItemsById.Values) newSet.Items.Add(item);
+                foreach (var id in incomItems.Keys)
+                {
+                    if (existItems.TryGetValue(id, out var tracked))
+                    {
+                        db.Entry(tracked).CurrentValues.SetValues(incomItems[id]);
+                        newSet.Items.Add(tracked);
+                    }
+                    else
+                        newSet.Items.Add(incomItems[id]);
+                }
 
                 await db.Sets.AddAsync(newSet, cancel);
             }
+            // UPDATE
             else
             {
-                // UPDATE
                 db.Entry(existSet).CurrentValues.SetValues(incomingSet);
 
                 // Usuwanie powiązań, których już nie ma w incoming
-                var incomingItems = incomingSet.Items?.ToList() ?? [];
-
-                foreach (var existItem in existSet.Items.ToList())
-                {
-                    // if (!incomingItems.Any(x => x.Id == existItem.Id))
-                    if (!incomingItemsIds.Contains(existItem.Id))
-                        existSet.Items.Remove(existItem);
-                }
+                foreach (var itemToRemove in existSet.Items.Where(x => !incomItems.ContainsKey(x.Id)).ToList())
+                    existSet.Items.Remove(itemToRemove);
 
                 // Dodawanie nowych lub aktualizacja exist
-                foreach (var incomingItem in incomingItems)
+                var existItems = existSet.Items.ToDictionary(x => x.Id);
+                foreach (var incom in incomItems)
                 {
-                    if (existItemsById.TryGetValue(incomingItem.Id, out var existItem))
+                    if (existItems.TryGetValue(incom.Key, out var existitem))
                     {
-                        // Aktualizacja właściwości
-                        db.Entry(existItem).CurrentValues.SetValues(incomingItem);
-                        // Dodanie powiązania, jeśli go jeszcze nie ma
-                        if (!existSet.Items.Any(x => x.Id == existItem.Id)) existSet.Items.Add(existItem);
+                        db.Entry(existitem).CurrentValues.SetValues(incom.Value);
+                        continue;
                     }
-                    else existSet.Items.Add(incomingItem);
+
+                    var existItem =
+                        await db.Items.FirstOrDefaultAsync(x => x.Id == incom.Key && x.UserId == incomingSet.UserId,
+                            cancel);
+
+                    if (existItem is not null)
+                    {
+                        db.Entry(existItem).CurrentValues.SetValues(incom.Value);
+                        existSet.Items.Add(existItem);
+                        existItems[existItem.Id] = existItem;
+                    }
+                    else
+                    {
+                        existSet.Items.Add(incom.Value);
+                        existItems[incom.Key] = incom.Value;
+                    }
                 }
             }
 
@@ -125,12 +140,14 @@ public class SetService(IDbContextFactory<ApplicationDbContext> dbFactory, ILogg
     }
 
 
-    public async Task<Result> DeleteItemFromSet(Guid itemId, Guid setId,Guid userId,CancellationToken cancel = default)
+    public async Task<Result> DeleteItemFromSet(Guid itemId, Guid setId, Guid userId,
+        CancellationToken cancel = default)
     {
         try
         {
             await using var db = await dbFactory.CreateDbContextAsync(cancel);
-            var existSet = await db.Sets.Include(x => x.Items).FirstOrDefaultAsync(x => x.Id == setId&&x.UserId==userId, cancel);
+            var existSet = await db.Sets.Include(x => x.Items)
+                .FirstOrDefaultAsync(x => x.Id == setId && x.UserId == userId, cancel);
             if (existSet is null) return Result.Fail(LogText.ObjectIsNull);
 
             var existItem = existSet.Items.FirstOrDefault(x => x.Id == itemId);
