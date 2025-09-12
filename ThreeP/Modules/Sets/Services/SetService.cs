@@ -1,4 +1,4 @@
-namespace ThreeP.Modules.Items;
+namespace ThreeP.Modules.Sets;
 
 public class SetService(IDbContextFactory<ApplicationDbContext> dbFactory, ILoggerFactory loggerFactory)
     : GenericService<Set>(dbFactory, loggerFactory)

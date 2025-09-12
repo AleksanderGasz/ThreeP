@@ -1,6 +1,6 @@
 ﻿@namespace ThreeP.Modules.Items
 
-<MBox Name="Dodaj/Edytuj"  Expanded="expanded" >
+<MBox Name="Dodaj/Edytuj"  Expanded="expanded" ExpandedDisabled="true">
     <HeaderRight>
         <MudButton Disabled="addDisabled" Color="Color.Success" Variant="Variant.Filled" Size="Size.Medium" OnClick="Add">Dodaj</MudButton>
     </HeaderRight>
@@ -22,7 +22,6 @@
 
 @code {
     [Parameter] public EventCallback<(Item item,bool isNew)> ItemChanged { get; set; }
-    // [Parameter] public EventCallback<bool> IsNewChanged { get; set; }
     [Parameter] public Item? Item { get; set; }
 
     string[]? errors;
@@ -66,7 +65,6 @@
     {
         exist = Item;
         await ItemChanged.InvokeAsync((Item,isNew));
-        // await IsNewChanged.InvokeAsync(IsNew);
         Item = new();
         expanded = false;
         addDisabled = false;

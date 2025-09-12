@@ -1,0 +1,98 @@
+@page "/set-details/{id:guid}"
+@namespace ThreeP.Modules.Sets
+@inject SetService SetService
+@inject TripService TripService
+@inject ShowResultService ShowResultService
+@attribute [Authorize]
+
+
+@if (Set is null)
+{
+    <NoData/>
+}
+else
+{
+    <MudGrid>
+        <MudItem xs="12" md="12">
+
+            @* UPDATE *@
+            <ItemUpdate Item="item" ItemChanged="UpdateSet"/>
+
+            <MVerticalSpacer/>
+
+            @* DATA GRID *@
+            @if (Set is not null)
+            {
+                <SetItemsGrid Set="Set" OnEdit="Edit" OnDelete="(arg)=>DeleteItemFromSet(arg)"/>
+            }
+
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+    [CascadingParameter] public AppState AppState { get; set; }
+    Guid userId => AppState.UserId;
+    [Parameter] public Guid Id { get; set; }
+    [PersistentState] public Set? Set { get; set; }
+    Item? item;
+    bool isItemNew;
+
+
+    protected override async Task OnInitializedAsync() => await Get();
+
+
+    async Task Get()
+    {
+        Set = await SetService.GetById(Id, [x => x.Items], filters: [x => x.UserId == userId]);
+    }
+
+
+    async Task Edit(Item arg) => item = arg;
+
+
+    async Task UpdateSet((Item? item, bool isNew) arg)
+    {
+        if (arg.isNew) await AddItemToSet(arg.item);
+        else
+        {
+            /* set.SetItems ??= [];
+            var link = set.SetItems.FirstOrDefault(x => x.ItemId == arg.Id);
+            if (link is null)
+            {
+                set.SetItems.Add(new SetItem
+                {
+                    SetId = set.Id,
+                    ItemId = arg.Id,
+                });
+            }
+            else set.SetItems.Remove(link);*/
+
+            Set.Items?.Remove(arg.item);
+            Set.Items?.Add(arg.item);
+            Set.UserId = userId;
+            var result = await SetService.UpdateSet(Set);
+            // var result = await SetService.UpsertSet(set);
+            ShowResultService.ShowResultMessage(result);
+            await Get();
+        }
+    }
+
+
+    async Task AddItemToSet(Item? item)
+    {
+        item.UserId = userId;
+        item.Sets.Add(Set);
+        var result = await SetService.AddNewItemToSet(item, Set.Id);
+        ShowResultService.ShowResultMessage(result);
+        await Get();
+    }
+
+
+    async Task DeleteItemFromSet(Guid? itemId)
+    {
+        var result = await SetService.DeleteItemFromSet(itemId.Value, Set.Id, userId);
+        ShowResultService.ShowResultMessage(result);
+        await Get();
+    }
+}

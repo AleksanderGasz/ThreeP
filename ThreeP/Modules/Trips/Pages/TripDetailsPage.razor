@@ -73,10 +73,11 @@ else
     [CascadingParameter] public AppState AppState { get; set; }
     Guid userId => AppState.UserId;
     [Parameter] public Guid Id { get; set; }
+    [PersistentState] public List<Set> sets { get; set; } = [];
+    [PersistentState] public Trip? trip { get; set; }
+    [PersistentState] public Set? set { get; set; }
     Item? item;
-    Trip? trip;
-    Set? set;
-    List<Set> sets = [];
+
     bool isItemNew;
 
 

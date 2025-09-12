@@ -7,8 +7,10 @@
         {
             @HeaderRight
         }
-        <MudToggleIconButton @bind-Toggled="Expanded" Icon="@Icons.Material.Filled.ArrowDropUp"
-                             ToggledIcon="@Icons.Material.Filled.ArrowDropDown"/>
+        @if (!ExpandedDisabled)
+        {
+            <MudToggleIconButton Disabled="ExpandedDisabled" @bind-Toggled="Expanded" Icon="@Icons.Material.Filled.ArrowDropUp" ToggledIcon="@Icons.Material.Filled.ArrowDropDown"/>
+        }
     </MudStack>
     <MudCollapse Expanded="Expanded">
         @ChildContent
@@ -19,6 +21,7 @@
 @code {
     [Parameter] public RenderFragment? HeaderRight { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public bool ExpandedDisabled { get; set; }
     [Parameter] public string? Name { get; set; }
     [Parameter] public Typo Typo { get; set; } = GlobalStyles.HeaderTypo;
     [Parameter] public Color Color { get; set; } = GlobalStyles.TextColor;
