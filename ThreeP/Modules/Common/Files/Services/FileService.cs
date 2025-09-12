@@ -2,7 +2,7 @@
 
 public class FileService(IWebHostEnvironment environment)
 {
-    public (string? filePath, string? dowloadedPath) SetFilePath(string fileName, string? directoryPath= null)
+    public (string? filePath, string? dowloadedPath) SetFilePath(string fileName, string? directoryPath = null)
     {
         if (string.IsNullOrWhiteSpace(fileName)) return new();
 

@@ -1,6 +1,8 @@
 @namespace ThreeP.Modules.Trips
 @inject IDialogService DialogService
 @inject NavigationManager NavigationManager
+@inject ImportExportService<T> ImportExportService
+@inject ShowResultService ShowResultService
 @typeparam T where T : Trip
 
 @if (Items?.Any() == false)
@@ -9,19 +11,30 @@
 }
 else
 {
-    <MudDataGrid T="T" Items="Items" Elevation="GlobalStyles.Elevation" RowClick="Details">
+    <MudDataGrid T="T" Items="Items" Elevation="GlobalStyles.Elevation" RowClick="Details" MultiSelection
+                 SelectedItems="selectedItems">
         <ToolBarContent>
             <MTitle Name="Tripy"/>
+            <MudSpacer/>
+            <MudStack Row Spacing="6">
+                <MudIconButton Disabled="!Items.Any()" Icon="@Icons.Material.Filled.FileDownload"
+                               Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick="Import">Import
+                </MudIconButton>
+                <MudIconButton Disabled="!selectedItems.Any()" Icon="@Icons.Material.Filled.FileUpload"
+                               Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick="Export">Export
+                </MudIconButton>
+            </MudStack>
         </ToolBarContent>
         <Columns>
             @* COLUMS *@
-            <HierarchyColumn T="Trip"/>
+            <SelectColumn T="T"/>
+            <HierarchyColumn T="T"/>
             <PropertyColumn Property="x=>x.Name" Title="Nazwa"/>
             <PropertyColumn Property="x=>x.Description" Title="Opis"/>
             <PropertyColumn Property="x=>x.Set.Name" Title="Set"/>
             <TemplateColumn Title="Set (Waga)">
                 <CellTemplate>
-                    @context.Item.Set?.Name 
+                    @context.Item.Set?.Name
                     (@context.Item.Set?.Weight kg)
                 </CellTemplate>
             </TemplateColumn>
@@ -49,6 +62,7 @@ else
     [Parameter] public EventCallback<T> OnEdit { get; set; }
     [Parameter] public EventCallback<Guid?> OnDelete { get; set; }
     [Parameter] public List<T>? Items { get; set; }
+    HashSet<T> selectedItems = [];
 
 
     async Task Edit(CellContext<T?> context) => await OnEdit.InvokeAsync(context.Item);
@@ -69,6 +83,23 @@ else
 
     async Task Details(DataGridRowClickEventArgs<T> context)
     {
-        NavigationManager.NavigateTo($"/trip-details/{context.Item.Id}", new NavigationOptions{HistoryEntryState = NavigationManager.Uri});
+        NavigationManager.NavigateTo($"/trip-details/{context.Item.Id}", new NavigationOptions { HistoryEntryState = NavigationManager.Uri });
+    }
+
+
+    async Task Export()
+    {
+        var result = await ImportExportService.Export(selectedItems.ToList());
+        ShowResultService.ShowResultMessage(result);
+    }
+
+
+    async Task Import()
+    {
+        var result = await ImportExportService.Import();
+        ShowResultService.ShowResultMessage(result.ToResult());
+        if (result.IsSuccess)
+        {
+        }
     }
 }

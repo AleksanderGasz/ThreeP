@@ -24,13 +24,14 @@ public static class Di
         services.AddScoped<ProgressService>();
         services.AddScoped<ShowResultService>();
         services.AddScoped<FileService>();
-        services.AddScoped<ZipService>();
-        services.AddScoped<PdfService>();
+        // services.AddScoped<ZipService>();
+        // services.AddScoped<PdfService>();
         
         // APP SERVICES
         services.AddScoped<ItemsService>();
         services.AddScoped<SetService>();
         services.AddScoped<TripService>();
+        services.AddScoped(typeof(ImportExportService<>));
         
         return services;
     }

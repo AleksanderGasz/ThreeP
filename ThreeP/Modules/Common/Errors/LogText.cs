@@ -33,15 +33,31 @@ public static string? Exception => Format("Exception occurred: ");
 
     
     //FILE static 
+    
+    //? Ok
+    public static string FileSaveOk => Format("File saved");
+    
+    
+    //! Error
     public static string CantUpload => Format("Can't upload file");
     public static string CantSaveFile => Format("Can't save file");
     public static string CantLoadFile => Format("Can't load file");
+    public static string FileNotExist => Format("File not exist");
 
+    
+    //IMPORT/EXPORT
+    //?Ok
+    public static string FileImportedOk => Format("File imported");
+    
+    //! Fail
+    public static string FileImportFail => Format("Can't import file");
+    
     
     // SETTING 
     public static string SaveSettings => Format("Settings saved.");
     public static string CantSaveSettings => Format("Can't save settings");
 
+    
     
     static string Format(string text) => $"{text}\n";
 }

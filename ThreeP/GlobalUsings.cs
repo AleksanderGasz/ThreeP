@@ -49,4 +49,5 @@ global using Mac.Modules.Errors;
 global using ThreeP.Modules.Items;
 global using ThreeP.Modules.Trips;
 global using ThreeP.Modules.Sets;
+global using ThreeP.Modules.ImportExport;
 // global using ThreeP.Modules.Todo;
