@@ -10,7 +10,7 @@ public class ImportExportService<T>(FileService fileService, IWebHostEnvironment
         await using var fileStream = File.Create(Path.Combine(environment.WebRootPath, "media", "files", "export",
             $"{typeof(T).Name.ToLowerInvariant()}.json"));
         var jsonOptions = new JsonSerializerOptions
-            { ReferenceHandler = ReferenceHandler.Preserve, WriteIndented = true };
+            { ReferenceHandler = ReferenceHandler.IgnoreCycles, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,WriteIndented = true };
         try
         {
             await JsonSerializer.SerializeAsync<List<T>>(fileStream, items, jsonOptions, cancel);
