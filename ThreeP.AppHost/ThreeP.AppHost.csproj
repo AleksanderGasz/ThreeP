@@ -12,6 +12,9 @@
 
     <ItemGroup>
         <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.2" />
+        <PackageReference Include="CommunityToolkit.Aspire.Hosting.Sqlite" Version="9.8.0-beta.384" />
+        <PackageReference Include="CommunityToolkit.Aspire.Microsoft.Data.Sqlite" Version="9.8.0-beta.384" />
+        <PackageReference Include="CommunityToolkit.Aspire.Microsoft.EntityFrameworkCore.Sqlite" Version="9.8.0-beta.384" />
     </ItemGroup>
 
     <ItemGroup>

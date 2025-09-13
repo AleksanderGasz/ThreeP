@@ -1,7 +1,7 @@
 @namespace ThreeP.Modules.Trips
 @inject IDialogService DialogService
 @inject NavigationManager NavigationManager
-@inject ImportExportService<T> ImportExportService
+@inject ImportExportService<TripDto> ImportExportService
 @inject ShowResultService ShowResultService
 @typeparam T where T : Trip
 
@@ -13,14 +13,15 @@ else
 {
     <MudDataGrid T="T" Items="Items" Elevation="GlobalStyles.Elevation" RowClick="Details" MultiSelection
                  SelectedItems="selectedItems">
+        @* TOOLBAR *@
         <ToolBarContent>
             <MTitle Name="Tripy"/>
             <MudSpacer/>
-            <MudStack Row Spacing="6">
-                <MudIconButton Disabled="!Items.Any()" Icon="@Icons.Material.Filled.FileDownload"
-                               Variant="Variant.Filled" Color="Color.Info" Size="Size.Small"  OnClick="Import">Import
+            <MudStack Row Spacing="2">
+                <MudIconButton Disabled="!Items.Any()" Icon="@Icons.Material.Filled.FileDownload" aria-label="Import"
+                               Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" OnClick="Import">Import
                 </MudIconButton>
-                <MudIconButton Disabled="!selectedItems.Any()" Icon="@Icons.Material.Filled.FileUpload"
+                <MudIconButton Disabled="!selectedItems.Any()" Icon="@Icons.Material.Filled.FileUpload" aria-label="Export"
                                Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick="Export">Export
                 </MudIconButton>
             </MudStack>
@@ -29,9 +30,9 @@ else
             @* COLUMS *@
             <SelectColumn T="T"/>
             <HierarchyColumn T="T"/>
-            <PropertyColumn Property="x=>x.Name" Title="Nazwa"/>
-            <PropertyColumn Property="x=>x.Description" Title="Opis"/>
-            <PropertyColumn Property="x=>x.Set.Name" Title="Set"/>
+            <PropertyColumn Property="x => x.Name" Title="Nazwa"/>
+            <PropertyColumn Property="x => x.Description" Title="Opis"/>
+            <PropertyColumn Property="x => x.Set.Name" Title="Set"/>
             <TemplateColumn Title="Set (Waga)">
                 <CellTemplate>
                     @context.Item.Set?.Name
@@ -89,7 +90,11 @@ else
 
     async Task Export()
     {
-        var result = await ImportExportService.Export(selectedItems.ToList());
+        
+        var dtos = new HashSet<TripDto>();
+        foreach (var selectedItem in selectedItems) dtos.Add(Trip.ToDto(selectedItem));
+
+        var result = await ImportExportService.Export(dtos);
         ShowResultService.ShowResultMessage(result);
     }
 

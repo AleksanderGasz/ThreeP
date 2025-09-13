@@ -93,6 +93,9 @@ public static class Configuration
                 .PersistKeysToFileSystem(new DirectoryInfo("/home/app/.aspnet/DataProtection-Keys"))
                 .SetApplicationName(environment.ApplicationName);
         }
+        
+        // ASPIRE
+        
 
         return services;
     }

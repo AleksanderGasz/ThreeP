@@ -1,5 +1,6 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddProject<Projects.ThreeP>("threep");
+var sqlite = builder.AddSqlite("sqlite"); ;
+builder.AddProject<Projects.ThreeP>("threep").WithReference(sqlite);
 
 builder.Build().Run();

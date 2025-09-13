@@ -11,4 +11,21 @@ public class Trip : BaseModelWithUser
 
     // public TodoList TodoList { get; set; }
     // public ICollection<TripItemStatus> TripItemsStatus { get; set; } = new HashSet<TripItemStatus>();
+
+
+    public static TripDto ToDto(Trip? trip) => new ()
+    {
+        Id = trip.Id,
+        Name = trip.Name,
+        Description = trip.Description,
+        UserId = trip.UserId,
+    };
+}
+
+public class TripDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string? Description { get; set; }
+    public Guid UserId { get; set; }
 }

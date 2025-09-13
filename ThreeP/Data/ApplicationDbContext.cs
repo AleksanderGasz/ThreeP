@@ -19,6 +19,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         base.OnModelCreating(builder);
 
         // USER
+        builder.Entity<ApplicationUser>().HasIndex(x => x.Email).IsUnique();
         builder.Entity<ApplicationUser>()
             .HasOne(x => x.Settings)
             .WithOne(x => x.User)
@@ -54,6 +55,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .OnDelete(DeleteBehavior.Cascade);*/
 
         // TRIPS
+        builder.Entity<Trip>().HasIndex(x => x.Name);
         builder.Entity<Trip>().HasOne(x => x.Set).WithMany(x => x.Trips).HasForeignKey(x => x.SetId);
         // builder.Entity<Trip>().HasOne(x => x.TodoList).WithOne(x => x.Trip).HasForeignKey<TodoList>(x => x.TripId);
         

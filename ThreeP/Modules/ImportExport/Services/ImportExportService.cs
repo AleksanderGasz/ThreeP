@@ -1,9 +1,8 @@
 namespace ThreeP.Modules.ImportExport;
 
 public class ImportExportService<T>(FileService fileService, IWebHostEnvironment environment, ILogger<T> logger)
-    where T : BaseModel
 {
-    public async Task<Result> Export(List<T>? items, CancellationToken cancel = default)
+    public async Task<Result> Export(HashSet<T>? items, CancellationToken cancel = default)
     {
         if (items is null or { Count: 0 }) return Result.Fail(LogText.ObjectIsNull);
 
@@ -13,7 +12,7 @@ public class ImportExportService<T>(FileService fileService, IWebHostEnvironment
             { ReferenceHandler = ReferenceHandler.IgnoreCycles, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,WriteIndented = true };
         try
         {
-            await JsonSerializer.SerializeAsync<List<T>>(fileStream, items, jsonOptions, cancel);
+            await JsonSerializer.SerializeAsync<HashSet<T>>(fileStream, items, jsonOptions, cancel);
             return Result.Ok().WithSuccess(LogText.FileSaveOk);
         }
         catch (Exception e)
@@ -24,7 +23,7 @@ public class ImportExportService<T>(FileService fileService, IWebHostEnvironment
     }
 
 
-    public async Task<Result<List<T>>> Import(CancellationToken cancel = default)
+    public async Task<Result<HashSet<T>>> Import(CancellationToken cancel = default)
     {
         var path = Path.Combine(Path.Combine(environment.WebRootPath, "media", "files", "export",
             $"{typeof(T).Name.ToLowerInvariant()}.json"));
@@ -32,7 +31,7 @@ public class ImportExportService<T>(FileService fileService, IWebHostEnvironment
         try
         {
             await using var fileStream = File.OpenRead(path);
-            var result = await JsonSerializer.DeserializeAsync<List<T>>(fileStream, cancellationToken: cancel) ?? [];
+            var result = await JsonSerializer.DeserializeAsync<HashSet<T>>(fileStream, cancellationToken: cancel) ?? [];
             return result.Count > 0
                 ? Result.Ok(result).WithSuccess(LogText.FileImportedOk)
                 : Result.Fail(LogText.FileImportFail);

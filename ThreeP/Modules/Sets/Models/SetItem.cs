@@ -1,4 +1,4 @@
-namespace ThreeP.Modules.Items;
+/*namespace ThreeP.Modules.Items;
 
 public class SetItem
 {
@@ -7,4 +7,4 @@ public class SetItem
 
     public Guid ItemId { get; set; }
     public  Item Item { get; set; }
-}
+}*/

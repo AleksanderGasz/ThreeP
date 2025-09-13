@@ -1,5 +1,8 @@
 @namespace ThreeP.Modules.Items
 @inject IDialogService DialogService
+@inject ShowResultService ShowResultService
+@inject ImportExportService<ItemDto> ImportExportService
+
 
 @if (Items?.Any() == false)
 {
@@ -7,13 +10,13 @@
 }
 else
 {
-    <MudDataGrid Items="Items" Elevation="GlobalStyles.Elevation" MultiSelection @bind-SelectedItems="selectedItems" >
+    <MudDataGrid Items="Items" Elevation="GlobalStyles.Elevation" MultiSelection @bind-SelectedItems="selectedItems">
         <ToolBarContent>
             @* <MudText Color="Color.Warning">Przedmioty</MudText> *@
             <MTitle Name="Wyposażenie"/>
             <MudSpacer/>
             <MudForm @ref="@setForm">
-                <MudStack Row>
+                <MudStack Row Class="me-8">
                     <MudTextField Disabled="addSetDisabled.Value" @bind-Value="setName" Variant="Variant.Text"
                                   Placeholder="Nazwa Setu" Class="me-2" Required Immediate/>
                     <MudButton Disabled="@(addSetDisabled.Value || !setForm.IsValid)" Variant="Variant.Filled"
@@ -23,6 +26,16 @@ else
                     </MudButton>
                 </MudStack>
             </MudForm>
+            <MudStack Row Spacing="2">
+                <MudIconButton Disabled="!Items.Any()" Icon="@Icons.Material.Filled.FileDownload" aria-label="Import"
+                               Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" OnClick="Import">Import
+                </MudIconButton>
+                <MudIconButton Disabled="!selectedItems.Any()" Icon="@Icons.Material.Filled.FileUpload"
+                               aria-label="Export"
+                               Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick="Export">Export
+                </MudIconButton>
+            </MudStack>
+
         </ToolBarContent>
         <Columns>
             @* <HierarchyColumn T="Item"/> *@
@@ -32,7 +45,7 @@ else
             <PropertyColumn Property="x => x.Weight" Title="Waga"/>
 
             @* ACTIONS *@
-            <TemplateColumn StickyRight Title="Akcje" 
+            <TemplateColumn StickyRight Title="Akcje"
                             HeaderClass="d-flex justify-center" HeaderStyle="width:120px; "
                             CellStyle="width:120px; text-align:center; ">
                 <CellTemplate>
@@ -93,5 +106,22 @@ else
     }
 
 
-    // void Refresh() => StateHasChanged();
+    async Task Export()
+    {
+        var dtos = new HashSet<ItemDto>();
+        foreach (var selectedItem in selectedItems) dtos.Add(Item.ToDto(selectedItem));
+
+        var result = await ImportExportService.Export(dtos);
+        ShowResultService.ShowResultMessage(result);
+    }
+
+
+    async Task Import()
+    {
+        var result = await ImportExportService.Import();
+        ShowResultService.ShowResultMessage(result.ToResult());
+        if (result.IsSuccess)
+        {
+        }
+    }
 }
