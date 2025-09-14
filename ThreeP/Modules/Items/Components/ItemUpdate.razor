@@ -1,6 +1,6 @@
-﻿@namespace ThreeP.Modules.Items
+﻿@*@namespace ThreeP.Modules.Items
 
-<MBox Name="Dodaj/Edytuj"  Expanded="expanded" ExpandedDisabled="true">
+<MBox Name="Dodaj/Edytuj"  Expanded="expanded" ExpandedDisabled="true" StickyTop StickyOffsetTop="64px"  OnDoubleClick="@Add">
     <HeaderRight>
         <MudButton Disabled="addDisabled" Color="Color.Success" Variant="Variant.Filled" Size="Size.Medium" OnClick="Add">Dodaj</MudButton>
     </HeaderRight>
@@ -79,4 +79,4 @@
         await form.ResetAsync();
     }
 
-}
+}*@

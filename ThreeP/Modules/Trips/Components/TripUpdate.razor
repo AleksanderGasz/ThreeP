@@ -2,9 +2,9 @@
 @typeparam T where T : Trip, new()
 @inject SetService SetService
 
-<div style="text-align: end;">
-</div>
-<MBox Name="Dodaj/Edytuj" Expanded="expanded" ExpandedDisabled="true">
+@*<div style="text-align: end;">
+</div>*@
+<MBox Name="Dodaj/Edytuj" Expanded="expanded" ExpandedDisabled="true" StickyTop="true">
     <HeaderRight>
         <MudButton Disabled="addDisabled" Color="Color.Success" Variant="Variant.Filled" Size="Size.Medium"
                    OnClick="Add">Dodaj
@@ -15,6 +15,8 @@
             <MudTextField @bind-Value="@Item?.Name" Label="Nazwa" Variant="Variant.Outlined" Required Immediate
                           Clearable/>
             <MudTextField @bind-Value="@Item?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
+            
+            <MudDatePicker @bind-Date="@Item?.TripDate" Label="Data wycieczki"/>
 
             <MudSelect @bind-Value="Item?.SetId" Variant="Variant.Filled" Label="Wybierz Set"
                        Class="@GlobalStyles.MarginTop" Clearable>

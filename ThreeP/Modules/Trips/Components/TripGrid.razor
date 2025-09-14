@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject ImportExportService<TripDto> ImportExportService
 @inject ShowResultService ShowResultService
+@inject TripService TripService
 @typeparam T where T : Trip
 
 @if (Items?.Any() == false)
@@ -11,8 +12,10 @@
 }
 else
 {
-    <MudDataGrid T="T" Items="Items" Elevation="GlobalStyles.Elevation" RowClick="Details" MultiSelection
-                 SelectedItems="selectedItems">
+    <MudDataGrid T="T" Items="Items" Elevation="GlobalStyles.Elevation" RowClick="Details"
+                 
+                 MultiSelection SelectedItems="selectedItems">
+        
         @* TOOLBAR *@
         <ToolBarContent>
             <MTitle Name="Tripy"/>
@@ -105,6 +108,13 @@ else
         ShowResultService.ShowResultMessage(result.ToResult());
         if (result.IsSuccess)
         {
+            foreach (var dto in result.Value)
+            {
+                dto.Id = Guid.CreateVersion7();
+                var importResult = await TripService.UpsertTrip(TripDto.ToModel(dto));
+                ShowResultService.ShowResultMessage(importResult);
+            }
+
         }
     }
 }

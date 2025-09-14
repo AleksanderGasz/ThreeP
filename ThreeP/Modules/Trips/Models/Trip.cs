@@ -4,6 +4,7 @@ public class Trip : BaseModelWithUser
 {
     [MaxLength(200)] public string Name { get; set; }
     [MaxLength(2000)] public string? Description { get; set; }
+    public DateTime? TripDate { get; set; }
 
     // NAV
     public Guid? SetId { get; set; }
@@ -28,4 +29,12 @@ public class TripDto
     public string Name { get; set; }
     public string? Description { get; set; }
     public Guid UserId { get; set; }
+    
+    public static Trip ToModel(TripDto dto) => new()
+    {
+        Id = dto.Id,
+        Name = dto.Name,
+        Description = dto.Description,
+        UserId = dto.UserId
+    };
 }

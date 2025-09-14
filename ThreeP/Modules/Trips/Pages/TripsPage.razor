@@ -1,36 +1,56 @@
 @namespace ThreeP.Modules.Trips
 @page "/trips"
 @inject TripService TripService
+@inject SetService SetService
 @inject ShowResultService ShowResultService
 
 @* <MTitle Name="Tripy"/> *@
-@if (item is null)
-{
-    <NoData/>
-}
-else
-{
+
+    <Update T="Trip" Item="item" ItemChanged="UpdateItem" >
+        <MudTextField @bind-Value="@context?.Name" Label="Nazwa" Variant="Variant.Outlined" Required Immediate
+                      Clearable/>
+        <MudTextField @bind-Value="@context?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
+        <MudDatePicker @bind-Date="@context?.TripDate"  Variant="Variant.Outlined"Label="Data wycieczki"/>
+
+        <MudSelect @bind-Value="context?.SetId" Variant="Variant.Filled" Label="Wybierz Set"
+                   Class="@GlobalStyles.MarginTop" Clearable>
+            @* <MudSelectItem Value="sets?.FirstOrDefault().Id">@sets?.FirstOrDefault()?.Name</MudSelectItem> *@
+            @foreach (var set in sets)
+            {
+                <MudSelectItem Value="set?.Id">@set?.Name</MudSelectItem>
+            }
+        </MudSelect>
+    </Update>
+    <MVerticalSpacer/>
     <MudGrid>
+        @*
         <MudItem xs="12">
             <TripUpdate T="Trip" Item="item" ItemChanged="UpdateItem" />
         </MudItem>
+        *@
         <MudItem xs="12">
             <TripGrid T="Trip" Items="Trips" OnEdit="Edit" OnDelete="Delete"/>
         </MudItem>
     </MudGrid>
-}
 @* <MacVerticalSpacer/> *@
 
 @code {
     [CascadingParameter] public AppState AppState { get; set; }
     Guid userId => AppState.UserId;
     [PersistentState] public List<Trip>? Trips { get; set; } = [];
-    Trip item = new();
+    [PersistentState] public List<Set>? sets { get; set; } = [];
+    Trip item = null;
 
-    protected override async Task OnInitializedAsync() => await Get();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetTrips();
+        await GetSets();
+    }
 
 
-    async Task Get() => Trips = await TripService.Get([x => x.Set], [x => x.UserId == userId]);
+    async Task GetTrips() => Trips = await TripService.Get([x => x.Set], [x => x.UserId == userId]);
+    async Task GetSets() => sets = (await SetService.Get(filters: [x => x.UserId == userId])).ToList();
 
 
     async Task Edit(Trip arg) => item = arg;
@@ -40,16 +60,17 @@ else
     {
         var result = await TripService.Delete(id);
         ShowResultService.ShowResultMessage(result);
-        await Get();
+        await GetTrips();
     }
 
 
-    async Task UpdateItem(Trip? arg)
+    async Task UpdateItem((Trip? item, bool isNew) arg)
     {
-        item = arg;
+        item = arg.item;
         item.UserId = userId;
         var result = await TripService.UpsertTrip(item);
         ShowResultService.ShowResultMessage(result);
-        await Get();
+        await GetTrips();
+        item = null;
     }
 }

@@ -1,5 +1,5 @@
 ﻿@namespace Mac.Modules.Elements
-<div class="@ComputedClass" style="@ComputedStyle"></div>
+<div class="@ClassBuilder" style="@StyleBuilder"></div>
 
 @code{
     /// <summary>
@@ -9,12 +9,12 @@
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
-    string ComputedClass => new CssBuilder()
+    string ClassBuilder => new CssBuilder()
         .AddClass(VerticalSpace, !string.IsNullOrWhiteSpace(VerticalSpace))
         .AddClass(Class, !string.IsNullOrWhiteSpace(Class))
         .Build();
     
-    string ComputedStyle => new StyleBuilder()
+    string StyleBuilder => new StyleBuilder()
         .AddStyle(Style, !string.IsNullOrWhiteSpace(Style))
         .Build();
 }

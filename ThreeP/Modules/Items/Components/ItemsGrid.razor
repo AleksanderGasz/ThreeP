@@ -2,6 +2,7 @@
 @inject IDialogService DialogService
 @inject ShowResultService ShowResultService
 @inject ImportExportService<ItemDto> ImportExportService
+@inject ItemsService ItemsService
 
 
 @if (Items?.Any() == false)
@@ -65,6 +66,7 @@ else
     [Parameter] public EventCallback<Item> OnEdit { get; set; }
     [Parameter] public EventCallback<Guid?> OnDelete { get; set; }
     [Parameter] public EventCallback<Set> OnSetCreating { get; set; }
+    [Parameter] public EventCallback OnReload { get; set; }
     [Parameter] public List<Item>? Items { get; set; }
 
     HashSet<Item>? selectedItems = [];
@@ -122,6 +124,17 @@ else
         ShowResultService.ShowResultMessage(result.ToResult());
         if (result.IsSuccess)
         {
+            foreach (var dto in result.Value)
+            {
+                dto.Id = Guid.CreateVersion7();
+                var importResult = await ItemsService.UpsertItem(ItemDto.ToModel(dto));
+                ShowResultService.ShowResultMessage(importResult);
+            }
         }
+
+        await ReloadItems();
     }
+
+
+    async Task ReloadItems() => await OnReload.InvokeAsync();
 }

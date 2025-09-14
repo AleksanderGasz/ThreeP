@@ -57,7 +57,12 @@ else
             </MudSelect>
 
             @* UPDATE *@
-            <ItemUpdate Item="item" ItemChanged="UpdateSet"/>
+            @* <ItemUpdate Item="item" ItemChanged="(arg)=>UpdateSet(arg)"/> *@
+            <Update T="Item" Item="item" ItemChanged="UpdateSet">
+                <MudTextField @bind-Value="@context?.Name" Label="Nazwa" Variant="Variant.Outlined" Required  Clearable/>
+                <MudTextField @bind-Value="@context?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
+                <MudNumericField @bind-Value="@context?.Weight" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg" Clearable/>
+            </Update>
 
             <MVerticalSpacer/>
             @if (set is not null)

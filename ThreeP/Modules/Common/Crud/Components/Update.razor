@@ -1,0 +1,112 @@
+﻿@namespace Mac.Modules.Crud
+@typeparam T where T : BaseModel, new()
+
+<MBox Name="Dodaj/Edytuj" Expanded="expanded" ExpandedDisabled="true" StickyTop StickyOffsetTop="64px"
+      OnDoubleClick="@Add">
+    <HeaderRight>
+        <MudButton Disabled="addDisabled" Color="Color.Success" Variant="Variant.Filled" Size="Size.Medium"
+                   OnClick="Add">Dodaj
+        </MudButton>
+    </HeaderRight>
+    <ChildContent>
+        <MudForm @ref="@form" Model="Item" @bind-IsValid="@success" @bind-Errors="errors">
+            
+            @ChildContent(Item)
+
+            @* BUTTONS *@
+            <MudStack Row Justify="Justify.FlexEnd" Class="@GlobalStyles.MarginTop">
+                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Cancel" Class="me-3">Anuluj</MudButton>
+                <MudButton Disabled="@(!form.IsValid)" Variant="Variant.Filled" Color="Color.Success" OnClick="Ok">OK
+                </MudButton>
+            </MudStack>
+        </MudForm>
+    </ChildContent>
+</MBox>
+
+@code {
+    [Parameter] public EventCallback<(T item, bool isNew)> ItemChanged { get; set; }
+    [Parameter] public RenderFragment<T>? ChildContent { get; set; }
+    [Parameter] public T? Item { get; set; }
+
+    string[]? errors;
+    bool success;
+    MudForm? form;
+    // T exist = new();
+
+    bool isNew { get; set; }
+    bool expanded;
+    bool addDisabled;
+
+
+    protected override void OnParametersSet()
+    {
+        if (Item is null)
+        {
+            Item=new(){Id=Guid.Empty};
+            expanded = false;
+            addDisabled = false;
+            isNew = false;
+            return;
+        }
+
+        if (Item.Id!=Guid.Empty&&!isNew)
+        {
+            expanded = true;
+            addDisabled= true;
+        }
+        else if (!isNew)
+        {
+            expanded = false;
+            addDisabled = false;
+        }
+        
+        
+        /*Item ??= new(){Id= Guid.Empty};
+        if (!ReferenceEquals(exist, Item) && Item.Id != Guid.Empty)
+        {
+            exist = Item;
+            expanded = true;
+            addDisabled = true;
+        }
+        else
+        {
+            Item = new();
+            expanded = false;
+        }*/
+    }
+
+
+    async Task Add()
+    {
+        Item = new(){Id = Guid.Empty};
+        isNew = true;
+        expanded = true;
+        addDisabled = true;
+        
+        // exist = Item;
+    }
+
+
+    async Task Ok()
+    {
+        if (Item is null) return;
+        
+        if (Item.Id==Guid.Empty) Item.Id=Guid.CreateVersion7();
+        
+        // exist = Item;
+        await ItemChanged.InvokeAsync((Item, isNew));
+        // Item = new();
+        isNew = false;
+        expanded = false;
+        addDisabled = false;
+    }
+
+
+    async Task Cancel()
+    {
+        expanded = false;
+        addDisabled = false;
+        isNew = false;
+        if (form is not null) await form.ResetAsync();
+    }
+}

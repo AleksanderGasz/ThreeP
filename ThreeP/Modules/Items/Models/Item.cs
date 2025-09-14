@@ -27,6 +27,15 @@ public class ItemDto
     public string? Description { get; set; }
     public float? Weight { get; set; }
     public Guid UserId { get; set; }
+    
+    public static Item ToModel(ItemDto dto) => new()
+    {
+        Id = dto.Id,
+        Name = dto.Name,
+        Description = dto.Description,
+        Weight = dto.Weight,
+        UserId = dto.UserId
+    };
 
 
 

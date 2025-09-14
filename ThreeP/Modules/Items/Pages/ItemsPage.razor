@@ -5,12 +5,18 @@
 @inject ShowResultService ShowResultService
 @attribute [Authorize]
 
+@* <ItemUpdate Item="item" ItemChanged="UpdateItem"/> *@
+@* <MVerticalSpacer/> *@
+<Update T="Item" Item="item" ItemChanged="(arg)=>UpdateItem(arg)">
+    <MudTextField @bind-Value="@context?.Name" Label="Nazwa" Variant="Variant.Outlined" Required  Clearable/>
+    <MudTextField @bind-Value="@context?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
+    <MudNumericField @bind-Value="@context?.Weight" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg" Clearable/>
+</Update>
+
+<MVerticalSpacer/>
 <MudGrid>
-    <MudItem xs="12">
-        <ItemUpdate Item="item" ItemChanged="UpdateItem"/>
-    </MudItem>
     <MudItem md="6">
-        <ItemsGrid Items="Items" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet"/>
+        <ItemsGrid Items="Items" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/>
     </MudItem>
     <MudItem md="6">
         <SetsGrid Sets="Sets" OnEdit="EditSet" OnDelete="DeleteSet"/>
@@ -20,10 +26,10 @@
 
 @code {
     [CascadingParameter] public AppState AppState { get; set; }
+    Guid userId => AppState.UserId;
     [PersistentState] public List<Item>? Items { get; set; }
     [PersistentState] public List<Set>? Sets { get; set; } = [];
     Item? item;
-    Guid userId => AppState.UserId;
 
 
     protected override async Task OnInitializedAsync()
@@ -48,6 +54,7 @@
         var result = await ItemsService.UpsertItem(item);
         ShowResultService.ShowResultMessage(result);
         await GetItems();
+        if (!arg.isNew) item = null; 
     }
 
 
@@ -61,7 +68,7 @@
 
     // SETS
     // async Task GetSets() => Sets = await SetService.Get([x=>x.Items],[x => x.UserId == userId]);
-    async Task GetSets() => Sets = await SetService.Get([x=>x.Items],filters:[x => x.UserId == userId]);
+    async Task GetSets() => Sets = await SetService.Get([x => x.Items], filters: [x => x.UserId == userId]);
 
 
     // async Task UpdateSet((Set? set, bool isNew) arg)
