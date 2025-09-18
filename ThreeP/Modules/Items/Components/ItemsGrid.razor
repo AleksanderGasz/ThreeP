@@ -11,7 +11,7 @@
 }
 else
 {
-    <MudDataGrid Items="Items" Elevation="GlobalStyles.Elevation" MultiSelection @bind-SelectedItems="selectedItems">
+    <MudDataGrid Items="Items" Elevation="GlobalStyles.Elevation" MultiSelection @bind-SelectedItems="SelectedItems">
         <ToolBarContent>
             @* <MudText Color="Color.Warning">Przedmioty</MudText> *@
             <MTitle Name="Wyposażenie"/>
@@ -20,7 +20,14 @@ else
                 <MudStack Row Class="me-8">
                     <MudTextField Disabled="addSetDisabled.Value" @bind-Value="setName" Variant="Variant.Text"
                                   Placeholder="Nazwa Setu" Class="me-2" Required Immediate/>
+                    @*
                     <MudButton Disabled="@(addSetDisabled.Value || !setForm.IsValid)" Variant="Variant.Filled"
+                               Color="Color.Info"
+                               Size="Size.Small"
+                               OnClick="AddSet">Dodaj Set
+                    </MudButton>
+                    *@
+                    <MudButton Disabled="@(addSetDisabled.Value)" Variant="Variant.Filled"
                                Color="Color.Info"
                                Size="Size.Small"
                                OnClick="AddSet">Dodaj Set
@@ -31,7 +38,7 @@ else
                 <MudIconButton Disabled="!Items.Any()" Icon="@Icons.Material.Filled.FileDownload" aria-label="Import"
                                Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" OnClick="Import">Import
                 </MudIconButton>
-                <MudIconButton Disabled="!selectedItems.Any()" Icon="@Icons.Material.Filled.FileUpload"
+                <MudIconButton Disabled="!SelectedItems.Any()" Icon="@Icons.Material.Filled.FileUpload"
                                aria-label="Export"
                                Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick="Export">Export
                 </MudIconButton>
@@ -67,10 +74,14 @@ else
     [Parameter] public EventCallback<Guid?> OnDelete { get; set; }
     [Parameter] public EventCallback<Set> OnSetCreating { get; set; }
     [Parameter] public EventCallback OnReload { get; set; }
+    [Parameter] public EventCallback<HashSet<Item>> SelectedItemsChanged { get; set; }
+    [Parameter] public HashSet<Item>? SelectedItems { get; set; }
     [Parameter] public List<Item>? Items { get; set; }
 
-    HashSet<Item>? selectedItems = [];
-    bool? addSetDisabled => selectedItems?.Any() != true;
+    // HashSet<Item>? selectedItems = [];
+    // bool? addSetDisabled => selectedItems?.Any() != true;
+    // bool? addSetDisabled => SelectedItems?.Any() != true;
+    bool? addSetDisabled =>false;
 
     MudForm? setForm;
     string? setName;
@@ -93,17 +104,17 @@ else
     {
         if (setForm.IsValid)
         {
-            var weight = selectedItems?.Sum(x => x.Weight) ?? 0;
+            var weight = SelectedItems?.Sum(x => x.Weight) ?? 0;
             var set = new Set
             {
                 Name = setName,
                 Description = "",
                 Weight = weight,
-                Items = selectedItems
+                Items = SelectedItems
             };
             await OnSetCreating.InvokeAsync(set);
             setName = string.Empty;
-            selectedItems.Clear();
+            SelectedItems.Clear();
         }
     }
 
@@ -111,7 +122,7 @@ else
     async Task Export()
     {
         var dtos = new HashSet<ItemDto>();
-        foreach (var selectedItem in selectedItems) dtos.Add(Item.ToDto(selectedItem));
+        foreach (var selectedItem in SelectedItems) dtos.Add(Item.ToDto(selectedItem));
 
         var result = await ImportExportService.Export(dtos);
         ShowResultService.ShowResultMessage(result);

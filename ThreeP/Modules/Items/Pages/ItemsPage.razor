@@ -14,10 +14,13 @@
 </Update>
 
 <MVerticalSpacer/>
+
 <MudGrid>
+    @* ITEMS *@
     <MudItem md="6">
-        <ItemsGrid Items="Items" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/>
+        <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/>
     </MudItem>
+    @* SETS *@
     <MudItem md="6">
         <SetsGrid Sets="Sets" OnEdit="EditSet" OnDelete="DeleteSet"/>
     </MudItem>
@@ -30,6 +33,7 @@
     [PersistentState] public List<Item>? Items { get; set; }
     [PersistentState] public List<Set>? Sets { get; set; } = [];
     Item? item;
+    HashSet<Item>selectedItems = [];
 
 
     protected override async Task OnInitializedAsync()
@@ -79,13 +83,23 @@
         ShowResultService.ShowResultMessage(result);
         await GetSets();
     }
-
+    
 
     async Task EditSet(Set? arg)
     {
-        var result = await SetService.UpdateSet(arg);
+        var ids = arg.Items.Select(x => x.Id).ToHashSet()??[];
+        selectedItems = Items.Where(x => ids.Contains(x.Id)).ToHashSet()??[];
+        // selectedItems = arg.Items != null ? arg.Items.ToHashSet() : [];
+        // StateHasChanged();
+
+
+        // var result = await SetService.UpdateSet(arg);
+        arg.Items = selectedItems;
+        /*var result = await SetService.UpdateSet(arg);
         ShowResultService.ShowResultMessage(result);
         await GetSets();
+    */
+        // await UpdateSet(arg);
     }
 
 

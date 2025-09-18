@@ -1,8 +1,8 @@
 @namespace ThreeP.Modules.Items
 @inject IDialogService DialogService
-@inject  NavigationManager NavigationManager
+@inject NavigationManager NavigationManager
 
-@if (Sets is null||!Sets.Any())
+@if (Sets is null || !Sets.Any())
 {
     <NoData/>
 }
@@ -22,11 +22,15 @@ else
             <PropertyColumn Property="x => x.Weight" Title="Waga" Editable="false"/>
 
             @* ACTIONS *@
-            <TemplateColumn StickyRight Title="Akcje"  HeaderClass="d-flex justify-center" HeaderStyle="width:120px; "
+            <TemplateColumn StickyRight Title="Akcje" HeaderClass="d-flex justify-center" HeaderStyle="width:120px; "
                             CellStyle="width:120px; text-align:center; ">
                 <CellTemplate>
+                    @*
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small"
                                    OnClick="@context.Actions.StartEditingItemAsync" Class="me-3"/>
+                    *@
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small"
+                                   OnClick="()=>Edit(context)" Class="me-3"/>
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
                                    OnClick="@(e => Delete(context))"/>
                 </CellTemplate>
@@ -35,7 +39,7 @@ else
 
         @* DETAILS *@
         <ChildRowContent>
-            @if (context?.Item.Items.Any()==true)
+            @if (context?.Item.Items.Any() == true)
             {
                 <MudSimpleTable Elevation="GlobalStyles.Elevation" Hover Dense Style="overflow-x: auto;">
                     <thead>
@@ -46,13 +50,13 @@ else
                     </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in context.Item?.Items)
-                        {
-                            <tr>
-                                <td>@item.Name</td>
-                                <td>@item.Description</td>
-                                <td>@item.Weight</td>
-                            </tr>
+                    @foreach (var item in context.Item?.Items)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.Description</td>
+                            <td>@item.Weight</td>
+                        </tr>
                     }
                     </tbody>
                 </MudSimpleTable>
@@ -92,9 +96,10 @@ else
         // ZMIANA: Anulowanie edycji - opcjonalnie można dodać logikę
         StateHasChanged();
     }
-    
+
+
     async Task Details(DataGridRowClickEventArgs<Set> context)
     {
-        NavigationManager.NavigateTo($"/set-details/{context.Item.Id}", new NavigationOptions{HistoryEntryState = NavigationManager.Uri});
+        NavigationManager.NavigateTo($"/set-details/{context.Item.Id}", new NavigationOptions { HistoryEntryState = NavigationManager.Uri });
     }
 }
