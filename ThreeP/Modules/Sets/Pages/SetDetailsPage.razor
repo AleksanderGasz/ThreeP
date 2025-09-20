@@ -35,7 +35,7 @@ else
     Guid userId => AppState.UserId;
     [Parameter] public Guid Id { get; set; }
     [PersistentState] public Set? Set { get; set; }
-    Item? item;
+    (Item? item, bool isNew)titem;
     bool isItemNew;
 
 
@@ -48,7 +48,7 @@ else
     }
 
 
-    async Task Edit(Item arg) => item = arg;
+    async Task Edit((Item? item, bool isNew) arg) => titem = arg;
 
 
     async Task UpdateSet((Item? item, bool isNew) arg)

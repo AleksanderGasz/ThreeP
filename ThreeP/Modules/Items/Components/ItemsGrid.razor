@@ -84,7 +84,7 @@ else
 }
 
 @code {
-    [Parameter] public EventCallback<Item> OnEdit { get; set; }
+    [Parameter] public EventCallback<(Item?, bool)> OnEdit { get; set; }
     [Parameter] public EventCallback<Guid?> OnDelete { get; set; }
     [Parameter] public EventCallback<Set> OnSetCreating { get; set; }
     [Parameter] public EventCallback OnReload { get; set; }
@@ -109,7 +109,7 @@ else
 
     async Task Edit(CellContext<Item?> context)
     {
-        await OnEdit.InvokeAsync(context.Item);
+        await OnEdit.InvokeAsync((context.Item, false));
     }
 
 

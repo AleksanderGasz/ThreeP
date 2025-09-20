@@ -58,7 +58,7 @@ else
 
             @* UPDATE *@
             @* <ItemUpdate Item="item" ItemChanged="(arg)=>UpdateSet(arg)"/> *@
-            <Update T="Item" Item="item" ItemChanged="UpdateSet">
+            <Update T="Item" Titem="titem" ItemChanged="UpdateSet">
                 <MudTextField @bind-Value="@context?.Name" Label="Nazwa" Variant="Variant.Outlined" Required  Clearable/>
                 <MudTextField @bind-Value="@context?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
                 <MudNumericField @bind-Value="@context?.Weight" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg" Clearable/>
@@ -81,9 +81,9 @@ else
     [PersistentState] public List<Set> sets { get; set; } = [];
     [PersistentState] public Trip? trip { get; set; }
     [PersistentState] public Set? set { get; set; }
-    Item? item;
+    (Item? item, bool isNew) titem;
 
-    bool isItemNew;
+    // bool isItemNew;
 
 
     protected override async Task OnInitializedAsync()
@@ -101,7 +101,7 @@ else
     // async Task GetSet() => set = await SetService.GetById(trip?.SetId, [x => x.SetItems], [x => x.UserId == userId]);
 
 
-    async Task Edit(Item arg) => item = arg;
+    async Task Edit((Item? item, bool isNew)arg) => this.titem = arg;
 
 
     async Task ChangeSet(Guid? arg)

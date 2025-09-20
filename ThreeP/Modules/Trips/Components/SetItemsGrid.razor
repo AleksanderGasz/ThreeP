@@ -27,7 +27,7 @@ else
                             CellStyle="width:120px; text-align:center; ">
                 <CellTemplate>
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Info" Size="Size.Small"
-                                   OnClick="@(()=>Edit(context.Item))" Class="me-3"/>
+                                   OnClick="@(()=>Edit((context.Item, false)))" Class="me-3"/>
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small"
                                    OnClick="@(()=>Delete(context.Item))"/>
                 </CellTemplate>
@@ -39,7 +39,7 @@ else
 }
 
 @code {
-    [Parameter] public EventCallback<Item> OnEdit { get; set; }
+    [Parameter] public EventCallback<(Item?, bool)> OnEdit { get; set; }
 
     [Parameter] public EventCallback<Guid?> OnDelete { get; set; }
 
@@ -53,7 +53,7 @@ else
     string? setName;
 
 
-    async Task Edit(Item? arg)
+    async Task Edit((Item?item, bool isNew) arg)
     {
         await OnEdit.InvokeAsync(arg);
     }

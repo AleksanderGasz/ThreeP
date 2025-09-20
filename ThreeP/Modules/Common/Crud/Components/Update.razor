@@ -4,14 +4,14 @@
 <MBox Name="Dodaj/Edytuj" Expanded="expanded" ExpandedDisabled="true" StickyTop StickyOffsetTop="64px"
       OnDoubleClick="@Add">
     <HeaderRight>
-        <MudButton Disabled="addDisabled" Color="Color.Success" Variant="Variant.Filled" Size="Size.Medium"
+        <MudButton Disabled="updateDisabled" Color="Color.Success" Variant="Variant.Filled" Size="Size.Medium"
                    OnClick="Add">Dodaj
         </MudButton>
     </HeaderRight>
     <ChildContent>
-        <MudForm @ref="@form" Model="Item" @bind-IsValid="@success" @bind-Errors="errors">
+        <MudForm @key="titem.item" @ref="@form" Model="titem.item" @bind-IsValid="@success" @bind-Errors="errors">
             
-            @ChildContent(Item)
+            @ChildContent(titem.item)
 
             @* BUTTONS *@
             <MudStack Row Justify="Justify.FlexEnd" Class="@GlobalStyles.MarginTop">
@@ -24,23 +24,35 @@
 </MBox>
 
 @code {
-    [Parameter] public EventCallback<(T item, bool isNew)> ItemChanged { get; set; }
+    [Parameter] public EventCallback<(T? item, bool isNew)> ItemChanged { get; set; }
     [Parameter] public RenderFragment<T>? ChildContent { get; set; }
-    [Parameter] public T? Item { get; set; }
+    [Parameter] public (T? item, bool isNew) Titem { get; set; }
+    (T? item, bool isNew) titem;
 
     string[]? errors;
     bool success;
     MudForm? form;
     // T exist = new();
 
-    bool isNew { get; set; }
+    // bool isNew { get; set; }
     bool expanded;
-    bool addDisabled;
+    bool updateDisabled;
 
 
     protected override void OnParametersSet()
     {
-        if (Item is null)
+
+        if (Titem.item is not null)
+        {
+            var isDiffrent = !ReferenceEquals(Titem.item, titem.item) || Titem.isNew != titem.isNew;
+            if (isDiffrent)
+            {
+                titem = Titem;
+                expanded = true;
+                updateDisabled = true;
+            }
+        }
+        /*if (Item is null)
         {
             Item=new(){Id=Guid.Empty};
             expanded = false;
@@ -58,7 +70,7 @@
         {
             expanded = false;
             addDisabled = false;
-        }
+        }*/
         
         
         /*Item ??= new(){Id= Guid.Empty};
@@ -76,6 +88,7 @@
     }
 
 
+    /*
     async Task Add()
     {
         Item = new(){Id = Guid.Empty};
@@ -85,28 +98,39 @@
         
         // exist = Item;
     }
+    */
+    
+    async Task Add()
+    {
+        titem = (new T{Id = Guid.CreateVersion7()}, true);
+        // TItem = (new T{Id = Guid.CreateVersion7()}, true);
+        expanded = true;
+        updateDisabled = true;
+    }
 
 
     async Task Ok()
     {
-        if (Item is null) return;
+        if (titem.item is null) return;
         
-        if (Item.Id==Guid.Empty) Item.Id=Guid.CreateVersion7();
+        if (titem.item.Id==Guid.Empty) titem.item.Id=Guid.CreateVersion7();
         
         // exist = Item;
-        await ItemChanged.InvokeAsync((Item, isNew));
+        // await ItemChanged.InvokeAsync(TItem);
+        await ItemChanged.InvokeAsync(titem);
         // Item = new();
-        isNew = false;
+        // isNew = false;
         expanded = false;
-        addDisabled = false;
+        updateDisabled = false;
     }
 
 
     async Task Cancel()
     {
         expanded = false;
-        addDisabled = false;
-        isNew = false;
+        updateDisabled = false;
+        titem = default;
+        // isNew = false;
         if (form is not null) await form.ResetAsync();
     }
 }

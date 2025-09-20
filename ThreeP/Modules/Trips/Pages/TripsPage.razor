@@ -6,32 +6,32 @@
 
 @* <MTitle Name="Tripy"/> *@
 
-    <Update T="Trip" Item="item" ItemChanged="UpdateItem" >
-        <MudTextField @bind-Value="@context?.Name" Label="Nazwa" Variant="Variant.Outlined" Required Immediate
-                      Clearable/>
-        <MudTextField @bind-Value="@context?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
-        <MudDatePicker @bind-Date="@context?.TripDate"  Variant="Variant.Outlined"Label="Data wycieczki"/>
+<Update T="Trip" Titem="tItem" ItemChanged="UpdateItem">
+    <MudTextField @bind-Value="@context?.Name" Label="Nazwa" Variant="Variant.Outlined" Required Immediate
+                  Clearable/>
+    <MudTextField @bind-Value="@context?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
+    <MudDatePicker @bind-Date="@context?.TripDate" Variant="Variant.Outlined" Label="Data wycieczki"/>
 
-        <MudSelect @bind-Value="context?.SetId" Variant="Variant.Filled" Label="Wybierz Set"
-                   Class="@GlobalStyles.MarginTop" Clearable>
-            @* <MudSelectItem Value="sets?.FirstOrDefault().Id">@sets?.FirstOrDefault()?.Name</MudSelectItem> *@
-            @foreach (var set in sets)
-            {
-                <MudSelectItem Value="set?.Id">@set?.Name</MudSelectItem>
-            }
-        </MudSelect>
-    </Update>
-    <MVerticalSpacer/>
-    <MudGrid>
-        @*
+    <MudSelect @bind-Value="context?.SetId" Variant="Variant.Filled" Label="Wybierz Set"
+               Class="@GlobalStyles.MarginTop" Clearable>
+        @* <MudSelectItem Value="sets?.FirstOrDefault().Id">@sets?.FirstOrDefault()?.Name</MudSelectItem> *@
+        @foreach (var set in sets)
+        {
+            <MudSelectItem Value="set?.Id">@set?.Name</MudSelectItem>
+        }
+    </MudSelect>
+</Update>
+<MVerticalSpacer/>
+<MudGrid>
+    @*
         <MudItem xs="12">
             <TripUpdate T="Trip" Item="item" ItemChanged="UpdateItem" />
         </MudItem>
         *@
-        <MudItem xs="12">
-            <TripGrid T="Trip" Items="Trips" OnEdit="Edit" OnDelete="Delete"/>
-        </MudItem>
-    </MudGrid>
+    <MudItem xs="12">
+        <TripGrid T="Trip" Items="Trips" OnEdit="Edit" OnDelete="Delete"/>
+    </MudItem>
+</MudGrid>
 @* <MacVerticalSpacer/> *@
 
 @code {
@@ -39,7 +39,7 @@
     Guid userId => AppState.UserId;
     [PersistentState] public List<Trip>? Trips { get; set; } = [];
     [PersistentState] public List<Set>? sets { get; set; } = [];
-    Trip item = null;
+    (Trip? trip, bool isNew) tItem;
 
 
     protected override async Task OnInitializedAsync()
@@ -53,7 +53,7 @@
     async Task GetSets() => sets = (await SetService.Get(filters: [x => x.UserId == userId])).ToList();
 
 
-    async Task Edit(Trip arg) => item = arg;
+    async Task Edit((Trip? trip, bool isNew) arg) => (tItem) = (arg.trip, arg.isNew);
 
 
     async Task Delete(Guid? id)
@@ -64,13 +64,14 @@
     }
 
 
-    async Task UpdateItem((Trip? item, bool isNew) arg)
+    async Task UpdateItem((Trip? trip, bool isNew) arg)
     {
-        item = arg.item;
-        item.UserId = userId;
-        var result = await TripService.UpsertTrip(item);
+        if (arg.trip is null) return;
+        tItem = arg;
+        tItem.trip.UserId = userId;
+        var result = await TripService.UpsertTrip(tItem.trip);
         ShowResultService.ShowResultMessage(result);
         await GetTrips();
-        item = null;
+        tItem = default;
     }
 }

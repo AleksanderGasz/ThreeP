@@ -7,7 +7,7 @@
 
 @* <ItemUpdate Item="item" ItemChanged="UpdateItem"/> *@
 @* <MVerticalSpacer/> *@
-<Update T="Item" Item="item" ItemChanged="(arg)=>UpdateItem(arg)">
+<Update T="Item" Titem="titem" ItemChanged="(arg)=>UpdateItem(arg)">
     <MudTextField @bind-Value="@context?.Name" Label="Nazwa" Variant="Variant.Outlined" Required Clearable/>
     <MudTextField @bind-Value="@context?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
     <MudNumericField @bind-Value="@context?.Weight" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg"
@@ -35,7 +35,7 @@
     Guid userId => AppState.UserId;
     [PersistentState] public List<Item>? Items { get; set; }
     [PersistentState] public List<Set>? Sets { get; set; } = [];
-    Item? item;
+    (Item? item, bool isNew)titem;
     HashSet<Item> selectedItems = [];
     string? setName;
     Set? editedSet;
@@ -53,17 +53,18 @@
     async Task GetItems() => Items = await ItemsService.Get(filters: [x => x.UserId == userId]);
 
 
-    async Task EditItem(Item arg) => item = arg;
+    async Task EditItem((Item? item,bool isNew) arg) => titem = arg;
 
 
     async Task UpdateItem((Item? item, bool isNew) arg)
     {
-        item = arg.item;
-        item.UserId = userId;
-        var result = await ItemsService.UpsertItem(item);
+        if (arg.item is null)return;
+        titem = arg;
+        titem.item.UserId = userId;
+        var result = await ItemsService.UpsertItem(titem.item);
         ShowResultService.ShowResultMessage(result);
         await GetItems();
-        if (!arg.isNew) item = null;
+        if (!arg.isNew) titem = (null, false);
     }
 
 
