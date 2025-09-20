@@ -18,7 +18,8 @@
 <MudGrid>
     @* ITEMS *@
     <MudItem md="6">
-        <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/>
+        <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" EditetedSet="@editedSet" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/>
+        @* <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" SetName="@setName" EditetedSet="@editedSet" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/> *@
     </MudItem>
     @* SETS *@
     <MudItem md="6">
@@ -34,6 +35,8 @@
     [PersistentState] public List<Set>? Sets { get; set; } = [];
     Item? item;
     HashSet<Item>selectedItems = [];
+    string? setName;
+    Set? editedSet;
 
 
     protected override async Task OnInitializedAsync()
@@ -89,12 +92,14 @@
     {
         var ids = arg.Items.Select(x => x.Id).ToHashSet()??[];
         selectedItems = Items.Where(x => ids.Contains(x.Id)).ToHashSet()??[];
+        editedSet = arg;
+        // setName=arg.Name;
         // selectedItems = arg.Items != null ? arg.Items.ToHashSet() : [];
         // StateHasChanged();
 
 
         // var result = await SetService.UpdateSet(arg);
-        arg.Items = selectedItems;
+        // arg.Items = selectedItems;
         /*var result = await SetService.UpdateSet(arg);
         ShowResultService.ShowResultMessage(result);
         await GetSets();

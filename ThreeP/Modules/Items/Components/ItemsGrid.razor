@@ -76,15 +76,28 @@ else
     [Parameter] public EventCallback OnReload { get; set; }
     [Parameter] public EventCallback<HashSet<Item>> SelectedItemsChanged { get; set; }
     [Parameter] public HashSet<Item>? SelectedItems { get; set; }
+
     [Parameter] public List<Item>? Items { get; set; }
+
+    // [Parameter] public string? SetName { get; set; }
+    [Parameter] public Set? EditetedSet { get; set; }
 
     // HashSet<Item>? selectedItems = [];
     // bool? addSetDisabled => selectedItems?.Any() != true;
     // bool? addSetDisabled => SelectedItems?.Any() != true;
-    bool? addSetDisabled =>false;
+    bool? addSetDisabled => false;
 
     MudForm? setForm;
-    string? setName;
+    string? setName
+    {
+        get => EditetedSet?.Name ?? field;
+        set
+        {
+            if (EditetedSet is null)
+                field = value;
+            else EditetedSet.Name= value;
+        } 
+    }
 
 
     async Task Edit(CellContext<Item?> context)
@@ -100,9 +113,10 @@ else
     }
 
 
+//TODO tworzy zawsze nowe id
     async Task AddSet()
     {
-        if (setForm.IsValid)
+        if (setForm.IsValid = true && EditetedSet is null)
         {
             var weight = SelectedItems?.Sum(x => x.Weight) ?? 0;
             var set = new Set
@@ -115,6 +129,14 @@ else
             await OnSetCreating.InvokeAsync(set);
             setName = string.Empty;
             SelectedItems.Clear();
+        }
+        else
+        {
+            EditetedSet.Items.Clear();
+            EditetedSet.Items = SelectedItems;
+            await OnSetCreating.InvokeAsync(EditetedSet);
+            EditetedSet.Items.Clear();
+            setName=string.Empty;
         }
     }
 
