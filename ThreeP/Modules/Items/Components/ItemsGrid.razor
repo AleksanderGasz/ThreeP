@@ -11,29 +11,27 @@
 }
 else
 {
-    <MudDataGrid Items="Items" Elevation="GlobalStyles.Elevation" MultiSelection @bind-SelectedItems="SelectedItems">
+    <MudDataGrid T="Item" Items="Items" Elevation="GlobalStyles.Elevation" MultiSelection
+                 @bind-SelectedItems="SelectedItems">
         <ToolBarContent>
             @* <MudText Color="Color.Warning">Przedmioty</MudText> *@
             <MTitle Name="Wyposażenie"/>
             <MudSpacer/>
-            <MudForm @ref="@setForm">
-                <MudStack Row Class="me-8">
-                    <MudTextField Disabled="addSetDisabled.Value" @bind-Value="setName" Variant="Variant.Text"
-                                  Placeholder="Nazwa Setu" Class="me-2" Required Immediate/>
-                    @*
-                    <MudButton Disabled="@(addSetDisabled.Value || !setForm.IsValid)" Variant="Variant.Filled"
-                               Color="Color.Info"
-                               Size="Size.Small"
-                               OnClick="AddSet">Dodaj Set
-                    </MudButton>
-                    *@
-                    <MudButton Disabled="@(addSetDisabled.Value)" Variant="Variant.Filled"
-                               Color="Color.Info"
-                               Size="Size.Small"
-                               OnClick="AddSet">Dodaj Set
-                    </MudButton>
-                </MudStack>
-            </MudForm>
+            @* <MudForm @ref="@setForm"> *@
+            <MudStack Row Class="me-8">
+                <MudTextField @bind-Value="SetName" Variant="Variant.Text"
+                              Placeholder="Nazwa Setu" Class="me-2" Required Immediate/>
+
+                @* <MudButton Disabled="@(setForm.IsValid)" Variant="Variant.Filled" *@
+                <MudButton Disabled="@(EditedSet is null && string.IsNullOrWhiteSpace(SetName))"
+                           Variant="Variant.Filled"
+                           Color="Color.Info"
+                           Size="Size.Small"
+                           OnClick="UpdateSet">Dodaj Set
+                </MudButton>
+
+            </MudStack>
+            @* </MudForm> *@
             <MudStack Row Spacing="2">
                 <MudIconButton Disabled="!Items.Any()" Icon="@Icons.Material.Filled.FileDownload" aria-label="Import"
                                Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" OnClick="Import">Import
@@ -46,10 +44,18 @@ else
 
         </ToolBarContent>
         <Columns>
-            @* <HierarchyColumn T="Item"/> *@
+            @* <HierarchyColumn T="Item" /> *@
             <SelectColumn T="Item"/>
-            <PropertyColumn Property="x => x.Name" Title="Nazwa"/>
-            <PropertyColumn Property="x => x.Description" Title="Opis"/>
+            <TemplateColumn T="Item">
+                <CellTemplate>
+                    <div>
+                        <MudText >@context?.Item?.Name</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Default">@context?.Item?.Description</MudText>
+                    </div>
+                </CellTemplate>
+            </TemplateColumn>
+            @* <PropertyColumn Property="x => x.Name" Title="Nazwa"/> *@
+            @* <PropertyColumn Property="x => x.Description" Title="Opis"/> *@
             <PropertyColumn Property="x => x.Weight" Title="Waga"/>
 
             @* ACTIONS *@
@@ -65,6 +71,14 @@ else
             </TemplateColumn>
 
         </Columns>
+        @* CHILD *@
+        @*<ChildRowContent>
+            @if (!string.IsNullOrWhiteSpace(context?.Item?.Description))
+            {
+                <MudText Typo="Typo.caption" Color="Color.Default">@context?.Item?.Description</MudText>
+            }
+        </ChildRowContent>*@
+
 
     </MudDataGrid>
 }
@@ -76,27 +90,20 @@ else
     [Parameter] public EventCallback OnReload { get; set; }
     [Parameter] public EventCallback<HashSet<Item>> SelectedItemsChanged { get; set; }
     [Parameter] public HashSet<Item>? SelectedItems { get; set; }
-
     [Parameter] public List<Item>? Items { get; set; }
+    [Parameter] public Set? EditedSet { get; set; }
 
-    // [Parameter] public string? SetName { get; set; }
-    [Parameter] public Set? EditetedSet { get; set; }
-
-    // HashSet<Item>? selectedItems = [];
-    // bool? addSetDisabled => selectedItems?.Any() != true;
-    // bool? addSetDisabled => SelectedItems?.Any() != true;
-    bool? addSetDisabled => false;
-
+    bool updateButtonDisabled = true;
     MudForm? setForm;
-    string? setName
+    string? SetName
     {
-        get => EditetedSet?.Name ?? field;
+        get => EditedSet?.Name ?? field;
         set
         {
-            if (EditetedSet is null)
+            if (EditedSet is null)
                 field = value;
-            else EditetedSet.Name= value;
-        } 
+            else EditedSet.Name = value;
+        }
     }
 
 
@@ -113,30 +120,31 @@ else
     }
 
 
-//TODO tworzy zawsze nowe id
-    async Task AddSet()
+    async Task UpdateSet()
     {
-        if (setForm.IsValid = true && EditetedSet is null)
+        // if (!await ValidateSet()) return;
+        // if (setForm.IsValid) return;
+
+        var weight = SelectedItems?.Sum(x => x.Weight) ?? 0;
+        if (EditedSet is null)
         {
-            var weight = SelectedItems?.Sum(x => x.Weight) ?? 0;
             var set = new Set
             {
-                Name = setName,
+                Name = SetName,
                 Description = "",
                 Weight = weight,
                 Items = SelectedItems
             };
             await OnSetCreating.InvokeAsync(set);
-            setName = string.Empty;
-            SelectedItems.Clear();
+            SetName = string.Empty;
+            // SelectedItems.Clear();
         }
         else
         {
-            EditetedSet.Items.Clear();
-            EditetedSet.Items = SelectedItems;
-            await OnSetCreating.InvokeAsync(EditetedSet);
-            EditetedSet.Items.Clear();
-            setName=string.Empty;
+            EditedSet.Weight = weight;
+            EditedSet.Items = SelectedItems;
+            await OnSetCreating.InvokeAsync(EditedSet);
+            SetName = string.Empty;
         }
     }
 
@@ -167,6 +175,21 @@ else
 
         await ReloadItems();
     }
+
+
+    /*async Task<bool> ValidateSet()
+    {
+        if (setForm is null)
+        {
+            updateButtonDisabled = true;
+            return false;
+        }
+
+        await setForm.Validate();
+        updateButtonDisabled = !setForm.IsValid;
+        // StateHasChanged();
+        return setForm.IsValid;
+    }*/
 
 
     async Task ReloadItems() => await OnReload.InvokeAsync();

@@ -8,9 +8,10 @@
 @* <ItemUpdate Item="item" ItemChanged="UpdateItem"/> *@
 @* <MVerticalSpacer/> *@
 <Update T="Item" Item="item" ItemChanged="(arg)=>UpdateItem(arg)">
-    <MudTextField @bind-Value="@context?.Name" Label="Nazwa" Variant="Variant.Outlined" Required  Clearable/>
+    <MudTextField @bind-Value="@context?.Name" Label="Nazwa" Variant="Variant.Outlined" Required Clearable/>
     <MudTextField @bind-Value="@context?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
-    <MudNumericField @bind-Value="@context?.Weight" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg" Clearable/>
+    <MudNumericField @bind-Value="@context?.Weight" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg"
+                     Clearable/>
 </Update>
 
 <MVerticalSpacer/>
@@ -18,7 +19,8 @@
 <MudGrid>
     @* ITEMS *@
     <MudItem md="6">
-        <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" EditetedSet="@editedSet" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/>
+        <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" EditedSet="@editedSet" OnEdit="EditItem"
+                   OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/>
         @* <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" SetName="@setName" EditetedSet="@editedSet" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/> *@
     </MudItem>
     @* SETS *@
@@ -34,7 +36,7 @@
     [PersistentState] public List<Item>? Items { get; set; }
     [PersistentState] public List<Set>? Sets { get; set; } = [];
     Item? item;
-    HashSet<Item>selectedItems = [];
+    HashSet<Item> selectedItems = [];
     string? setName;
     Set? editedSet;
 
@@ -61,7 +63,7 @@
         var result = await ItemsService.UpsertItem(item);
         ShowResultService.ShowResultMessage(result);
         await GetItems();
-        if (!arg.isNew) item = null; 
+        if (!arg.isNew) item = null;
     }
 
 
@@ -84,14 +86,20 @@
         arg.UserId = userId;
         var result = await SetService.UpdateSet(arg);
         ShowResultService.ShowResultMessage(result);
+        if (result.IsSuccess)
+        {
+            editedSet = null;
+            selectedItems = [];
+        }
+        
         await GetSets();
     }
-    
+
 
     async Task EditSet(Set? arg)
     {
-        var ids = arg.Items.Select(x => x.Id).ToHashSet()??[];
-        selectedItems = Items.Where(x => ids.Contains(x.Id)).ToHashSet()??[];
+        var ids = arg.Items.Select(x => x.Id).ToHashSet() ?? [];
+        selectedItems = Items.Where(x => ids.Contains(x.Id)).ToHashSet() ?? [];
         editedSet = arg;
         // setName=arg.Name;
         // selectedItems = arg.Items != null ? arg.Items.ToHashSet() : [];
