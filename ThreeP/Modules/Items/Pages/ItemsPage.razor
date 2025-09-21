@@ -64,7 +64,7 @@
         var result = await ItemsService.UpsertItem(titem.item);
         ShowResultService.ShowResultMessage(result);
         await GetItems();
-        if (!arg.isNew) titem = (null, false);
+        if (result.IsSuccess) titem = default;
     }
 
 

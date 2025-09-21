@@ -12,11 +12,22 @@
 else
 {
     <MudDataGrid T="Item" Items="Items" Elevation="GlobalStyles.Elevation" MultiSelection
+                 Filterable QuickFilter="@Search"
                  @bind-SelectedItems="SelectedItems">
+
+        @* TOOLBAR *@
         <ToolBarContent>
             @* <MudText Color="Color.Warning">Przedmioty</MudText> *@
             <MTitle Name="Wyposażenie"/>
+
+            @* SEARCH *@
+            <MudTextField @bind-Value="searchString" Placeholder="Szukaj" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+                          Class="mt-0 ms-3"></MudTextField>
+
             <MudSpacer/>
+
+            @* UPDATE SET *@
             @* <MudForm @ref="@setForm"> *@
             <MudStack Row Class="me-8">
                 <MudTextField @bind-Value="SetName" Variant="Variant.Text"
@@ -24,10 +35,9 @@ else
 
                 @* <MudButton Disabled="@(setForm.IsValid)" Variant="Variant.Filled" *@
                 <MudButton Disabled="@(EditedSet is null && string.IsNullOrWhiteSpace(SetName))"
-                           Variant="Variant.Filled"
-                           Color="Color.Info"
-                           Size="Size.Small"
-                           OnClick="UpdateSet">Dodaj Set
+                           Variant="Variant.Filled" Color="@(EditedSet is null ? Color.Success : Color.Info)"
+                           Size="Size.Small" OnClick="UpdateSet">
+                    @(EditedSet is null? "Dodaj Set":"Edytuj Set")
                 </MudButton>
 
             </MudStack>
@@ -43,13 +53,14 @@ else
             </MudStack>
 
         </ToolBarContent>
+        @* COLUMNS *@
         <Columns>
             @* <HierarchyColumn T="Item" /> *@
             <SelectColumn T="Item"/>
-            <TemplateColumn T="Item">
+            <TemplateColumn T="Item" Title="Nazwa" Sortable="true" SortBy="x=>x.Name">
                 <CellTemplate>
                     <div>
-                        <MudText >@context?.Item?.Name</MudText>
+                        <MudText>@context?.Item?.Name</MudText>
                         <MudText Typo="Typo.caption" Color="Color.Default">@context?.Item?.Description</MudText>
                     </div>
                 </CellTemplate>
@@ -95,6 +106,7 @@ else
 
     bool updateButtonDisabled = true;
     MudForm? setForm;
+    string? searchString;
     string? SetName
     {
         get => EditedSet?.Name ?? field;
@@ -190,6 +202,16 @@ else
         // StateHasChanged();
         return setForm.IsValid;
     }*/
+
+
+    Func<Item, bool> Search => x =>
+    {
+        if (string.IsNullOrWhiteSpace(searchString)) return true;
+
+        if (!string.IsNullOrWhiteSpace(x.Name) && (x.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))) return true;
+        if (!string.IsNullOrWhiteSpace(x.Description) && x.Description.Contains(searchString, StringComparison.OrdinalIgnoreCase)) return true;
+        return false;
+    };
 
 
     async Task ReloadItems() => await OnReload.InvokeAsync();
