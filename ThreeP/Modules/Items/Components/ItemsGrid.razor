@@ -30,8 +30,8 @@ else
             @* UPDATE SET *@
             @* <MudForm @ref="@setForm"> *@
             <MudStack Row Class="me-8">
-                <MudTextField @bind-Value="SetName" Variant="Variant.Text"
-                              Placeholder="Nazwa Setu" Class="me-2" Required Immediate/>
+                <MudTextField @bind-Value="SetName" Variant="Variant.Text"Placeholder="Nazwa Setu" 
+                              Class="mt-0 me-2" Required Immediate/>
 
                 @* <MudButton Disabled="@(setForm.IsValid)" Variant="Variant.Filled" *@
                 <MudButton Disabled="@(EditedSet is null && string.IsNullOrWhiteSpace(SetName))"

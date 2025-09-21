@@ -7,11 +7,13 @@
 
 @* <ItemUpdate Item="item" ItemChanged="UpdateItem"/> *@
 @* <MVerticalSpacer/> *@
+
+@* UPDATE *@
 <Update T="Item" Titem="titem" ItemChanged="(arg)=>UpdateItem(arg)">
     <MudTextField @bind-Value="@context?.Name" Label="Nazwa" Variant="Variant.Outlined" Required Clearable/>
     <MudTextField @bind-Value="@context?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
-    <MudNumericField @bind-Value="@context?.Weight" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg"
-                     Clearable/>
+    <MudNumericField T="float?" @bind-Value="@context?.Weight" Format="N2" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg" 
+                     Clearable Step=".1f" />
 </Update>
 
 <MVerticalSpacer/>
