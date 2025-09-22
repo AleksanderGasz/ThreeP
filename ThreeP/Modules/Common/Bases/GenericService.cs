@@ -7,7 +7,7 @@ public class GenericService<T>(IDbContextFactory<ApplicationDbContext> dbFactory
 
 
     //GET
-    public async Task<List<T>> Get(
+    public async Task<List<T?>> Get(
         List<Expression<Func<T, object>>>? includes = null,
         List<Expression<Func<T, bool>>>? filters = null,
         Expression<Func<T, object>>? orderBy = null,

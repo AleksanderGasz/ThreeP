@@ -12,7 +12,7 @@
 else
 {
     <MudDataGrid T="Item" Items="Items" Elevation="GlobalStyles.Elevation" MultiSelection
-                 Filterable QuickFilter="@Search"
+                 Filterable QuickFilter="@Search" FixedHeader
                  @bind-SelectedItems="SelectedItems">
 
         @* TOOLBAR *@
@@ -22,7 +22,7 @@ else
 
             @* SEARCH *@
             <MudTextField @bind-Value="searchString" Placeholder="Szukaj" Adornment="Adornment.Start" Immediate="true"
-                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Clearable ClearIcon="@Icons.Material.Filled.Clear"
                           Class="mt-0 ms-3"></MudTextField>
 
             <MudSpacer/>
@@ -37,7 +37,7 @@ else
                 <MudButton Disabled="@(EditedSet is null && string.IsNullOrWhiteSpace(SetName))"
                            Variant="Variant.Filled" Color="@(EditedSet is null ? Color.Success : Color.Info)"
                            Size="Size.Small" OnClick="UpdateSet">
-                    @(EditedSet is null? "Dodaj Set":"Edytuj Set")
+                    @(EditedSet is null? "Dodaj Set":"Zatwierdź")
                 </MudButton>
 
             </MudStack>

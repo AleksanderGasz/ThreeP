@@ -13,11 +13,30 @@
 else
 {
     <MudGrid>
+        <MudItem xs="12" md="6">
+            <MudStack Row>
+                <BackArrow/>
+                <MTitle Name="@Set?.Name"/>
+            </MudStack>
+        </MudItem>
+
+        @* WEIGHT *@
+        <MudItem xs="12" md="6" Class="d-flex justify-end align-center">
+            <MudStack Row>
+                <MudText Color="Color.Default" Typo="Typo.h6" Class="me-2">Waga:</MudText>
+                <MudText Color="Color.Warning"
+                         Typo="Typo.h6">@(Set?.Weight.HasValue == true ? $"{Set?.Weight} Kg" : string.Empty)</MudText>
+            </MudStack>
+        </MudItem>
+    </MudGrid>
+
+    <MudGrid>
         <MudItem xs="12" md="12">
 
             @* UPDATE *@
-            <ItemUpdate Item="item" ItemChanged="UpdateSet"/>
-
+            @* <ItemUpdate Item="item" ItemChanged="UpdateSet"/> *@
+            <Update T="Item" Titem="titem" ItemChanged="UpdateSet"/>
+            
             <MVerticalSpacer/>
 
             @* DATA GRID *@
@@ -35,8 +54,8 @@ else
     Guid userId => AppState.UserId;
     [Parameter] public Guid Id { get; set; }
     [PersistentState] public Set? Set { get; set; }
-    (Item? item, bool isNew)titem;
-    bool isItemNew;
+    (Item? item, bool isNew) titem;
+    // bool isItemNew;
 
 
     protected override async Task OnInitializedAsync() => await Get();

@@ -1,7 +1,8 @@
 ﻿@namespace Mac.Modules.Elements
 
 
-<MudPaper Elevation="GlobalStyles.Elevation" Class="@ClassBuilder" Style="@StyleBuilder" @ondblclick="@(async _ => await OnDoubleClick.InvokeAsync())">
+<MudPaper Elevation="GlobalStyles.Elevation" Class="@ClassBuilder" Style="@StyleBuilder"
+          @ondblclick="@(async _ => await OnDoubleClick.InvokeAsync())">
     <MudStack Row Justify="Justify.SpaceBetween">
         <MTitle Name="@Name" Color="@Color" Typo="Typo"/>
         <MudSpacer/>
@@ -11,17 +12,22 @@
         }
         @if (!ExpandedDisabled)
         {
-            <MudToggleIconButton Disabled="ExpandedDisabled" @bind-Toggled="Expanded" Icon="@Icons.Material.Filled.ArrowDropUp" ToggledIcon="@Icons.Material.Filled.ArrowDropDown"/>
+            <MudToggleIconButton Disabled="ExpandedDisabled" @bind-Toggled="Expanded"
+                                 Icon="@Icons.Material.Filled.ArrowDropUp"
+                                 ToggledIcon="@Icons.Material.Filled.ArrowDropDown"/>
         }
     </MudStack>
     <MudCollapse Expanded="Expanded">
-        @ChildContent
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
     </MudCollapse>
 </MudPaper>
 
 
 @code {
-[Parameter]public EventCallback OnDoubleClick { get; set; }
+    [Parameter] public EventCallback OnDoubleClick { get; set; }
     [Parameter] public RenderFragment? HeaderRight { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public bool ExpandedDisabled { get; set; }
@@ -33,16 +39,15 @@
     [Parameter] public string? StickyOffsetTop { get; set; } = "0";
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Styles { get; set; }
-    
+
     string? ClassBuilder => new CssBuilder()
-        .AddClass(Class,  !string.IsNullOrWhiteSpace(Class))
+        .AddClass(Class, !string.IsNullOrWhiteSpace(Class))
         .AddClass("pa-4")
         // .AddClass("mud-appbar-fixed-top")
         .Build();
-    
+
     string? StyleBuilder => new StyleBuilder()
         .AddStyle($"position: sticky; top:{StickyOffsetTop}; z-index:10", StickyTop)
-        .AddStyle(Styles, !string.IsNullOrWhiteSpace(Styles) )
+        .AddStyle(Styles, !string.IsNullOrWhiteSpace(Styles))
         .Build();
-
 }

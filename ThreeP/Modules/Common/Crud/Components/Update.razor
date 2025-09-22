@@ -1,6 +1,7 @@
 ﻿@namespace Mac.Modules.Crud
 @typeparam T where T : BaseModel, new()
 
+
 <MBox Name="Dodaj/Edytuj" Expanded="expanded" ExpandedDisabled="true" StickyTop StickyOffsetTop="64px"
       OnDoubleClick="@Add">
     <HeaderRight>
@@ -9,14 +10,19 @@
         </MudButton>
     </HeaderRight>
     <ChildContent>
-        <MudForm @key="titem.item" @ref="@form" Model="titem.item" @bind-IsValid="@success" @bind-Errors="errors">
-            
-            @ChildContent(titem.item)
+
+        <MudForm @key="titem.item?.Id" @ref="@form" Model="titem.item!" @bind-IsValid="@success" @bind-Errors="errors">
+            @if (titem.item is not null&&ChildContent is not null)
+            {
+                @ChildContent(titem.item!)
+            }
 
             @* BUTTONS *@
             <MudStack Row Justify="Justify.FlexEnd" Class="@GlobalStyles.MarginTop">
-                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Cancel" Class="me-3">Anuluj</MudButton>
-                <MudButton Disabled="@(!form.IsValid)" Variant="Variant.Filled" Color="Color.Success" OnClick="Ok">OK
+                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Cancel" Class="me-3">Anuluj
+                </MudButton>
+                <MudButton Disabled="@(!success)" Variant="Variant.Filled" Color="Color.Success" OnClick="Ok">
+                    OK
                 </MudButton>
             </MudStack>
         </MudForm>
@@ -26,8 +32,8 @@
 @code {
     [Parameter] public EventCallback<(T? item, bool isNew)> ItemChanged { get; set; }
     [Parameter] public RenderFragment<T>? ChildContent { get; set; }
-    [Parameter] public (T? item, bool isNew) Titem { get; set; }
-    (T? item, bool isNew) titem;
+    [Parameter] public (T? item, bool isNew) Titem { get; set; } = default;
+    (T? item, bool isNew) titem = default;
 
     string[]? errors;
     bool success;
@@ -41,14 +47,13 @@
 
     protected override void OnParametersSet()
     {
-
         if (Titem.item is not null)
         {
             var isDiffrent = !ReferenceEquals(Titem.item, titem.item) || Titem.isNew != titem.isNew;
             if (isDiffrent)
             {
                 titem = Titem;
-                expanded = true;
+                expanded = titem.item is not null;
                 updateDisabled = true;
             }
         }
@@ -71,8 +76,8 @@
             expanded = false;
             addDisabled = false;
         }*/
-        
-        
+
+
         /*Item ??= new(){Id= Guid.Empty};
         if (!ReferenceEquals(exist, Item) && Item.Id != Guid.Empty)
         {
@@ -95,14 +100,15 @@
         isNew = true;
         expanded = true;
         addDisabled = true;
-        
+
         // exist = Item;
     }
     */
-    
+
+
     async Task Add()
     {
-        titem = (new T{Id = Guid.CreateVersion7()}, true);
+        titem = (new T { Id = Guid.CreateVersion7() }, true);
         // TItem = (new T{Id = Guid.CreateVersion7()}, true);
         expanded = true;
         updateDisabled = true;
@@ -112,9 +118,9 @@
     async Task Ok()
     {
         if (titem.item is null) return;
-        
-        if (titem.item.Id==Guid.Empty) titem.item.Id=Guid.CreateVersion7();
-        
+
+        if (titem.item.Id == Guid.Empty) titem.item.Id = Guid.CreateVersion7();
+
         // exist = Item;
         // await ItemChanged.InvokeAsync(TItem);
         await ItemChanged.InvokeAsync(titem);
