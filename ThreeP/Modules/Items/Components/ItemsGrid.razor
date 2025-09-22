@@ -4,6 +4,19 @@
 @inject ImportExportService<ItemDto> ImportExportService
 @inject ItemsService ItemsService
 
+<SectionContent SectionId="ItemsPage.SearchInGrid">
+    @* <MVerticalSpacer /> *@
+    
+    @* SEARCH *@
+    <MBox Name="Szukaj" StickyTop  StickyOffsetTop="140px" ExpandedDisabled Class="mt-5">
+        <HeaderRight>
+            <MudTextField @bind-Value="searchString" Placeholder="wpisz szukaną fraze" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Clearable
+                          ClearIcon="@Icons.Material.Filled.Clear"></MudTextField>
+        </HeaderRight>
+
+    </MBox>
+</SectionContent>
 
 @if (Items?.Any() == false)
 {
@@ -20,28 +33,34 @@ else
             @* <MudText Color="Color.Warning">Przedmioty</MudText> *@
             <MTitle Name="Wyposażenie"/>
 
-            @* SEARCH *@
-            <MudTextField @bind-Value="searchString" Placeholder="Szukaj" Adornment="Adornment.Start" Immediate="true"
-                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Clearable ClearIcon="@Icons.Material.Filled.Clear"
-                          Class="mt-0 ms-3"></MudTextField>
+            @* Search *@
+            @*<MudTextField @bind-Value="searchString" Placeholder="Szukaj" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Clearable
+                          ClearIcon="@Icons.Material.Filled.Clear"
+                          Class="mt-0 ms-3"></MudTextField>*@
 
             <MudSpacer/>
 
-            @* UPDATE SET *@
-            @* <MudForm @ref="@setForm"> *@
+            @* Update Set *@
             <MudStack Row Class="me-8">
-                <MudTextField @bind-Value="SetName" Variant="Variant.Text"Placeholder="Nazwa Setu" 
+                <MudTextField @bind-Value="SetName" Variant="Variant.Text" Placeholder="Nazwa Setu"
                               Class="mt-0 me-2" Required Immediate/>
 
+                @if (EditedSet is not null)
+                {
+                    <MudButton Color="Color.Error" Variant="Variant.Outlined" Size="Size.Small" OnClick="EditSetCancel">
+                        Anuluj
+                    </MudButton>
+                }
                 @* <MudButton Disabled="@(setForm.IsValid)" Variant="Variant.Filled" *@
                 <MudButton Disabled="@(EditedSet is null && string.IsNullOrWhiteSpace(SetName))"
                            Variant="Variant.Filled" Color="@(EditedSet is null ? Color.Success : Color.Info)"
                            Size="Size.Small" OnClick="UpdateSet">
-                    @(EditedSet is null? "Dodaj Set":"Zatwierdź")
+                    @(EditedSet is null ? "Dodaj Set" : "Zatwierdź")
                 </MudButton>
-
             </MudStack>
-            @* </MudForm> *@
+
+            @* Import/Export *@
             <MudStack Row Spacing="2">
                 <MudIconButton Disabled="!Items.Any()" Icon="@Icons.Material.Filled.FileDownload" aria-label="Import"
                                Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" OnClick="Import">Import
@@ -161,6 +180,18 @@ else
     }
 
 
+    async Task EditSetCancel()
+    {
+        EditedSet = null;
+        var empty = new HashSet<Item>();
+        // SelectedItems = empty;
+        SelectedItems.Clear();
+        // await SelectedItemsChanged.InvokeAsync(empty);
+        // SetName=string.Empty;
+        // StateHasChanged();
+    }
+
+
     async Task Export()
     {
         var dtos = new HashSet<ItemDto>();
@@ -168,6 +199,14 @@ else
 
         var result = await ImportExportService.Export(dtos);
         ShowResultService.ShowResultMessage(result);
+
+        if (result.IsSuccess)
+        {
+            // if (result.IsSuccess)SelectedItems.Clear(); 
+            var empty = new HashSet<Item>(); // NOWA instancja kolekcji
+            SelectedItems = empty;
+            await SelectedItemsChanged.InvokeAsync(SelectedItems);
+        }
     }
 
 

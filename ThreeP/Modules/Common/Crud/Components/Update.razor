@@ -5,7 +5,7 @@
 <MBox Name="Dodaj/Edytuj" Expanded="expanded" ExpandedDisabled="true" StickyTop StickyOffsetTop="64px"
       OnDoubleClick="@Add">
     <HeaderRight>
-        <MudButton Disabled="updateDisabled" Color="Color.Success" Variant="Variant.Filled" Size="Size.Medium"
+        <MudButton Disabled="updateDisabled" Color="Color.Warning" Variant="Variant.Outlined" Size="Size.Medium"
                    OnClick="Add">Dodaj
         </MudButton>
     </HeaderRight>
@@ -19,7 +19,7 @@
 
             @* BUTTONS *@
             <MudStack Row Justify="Justify.FlexEnd" Class="@GlobalStyles.MarginTop">
-                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="Cancel" Class="me-3">Anuluj
+                <MudButton Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small" OnClick="Cancel" Class="me-3">Anuluj
                 </MudButton>
                 <MudButton Disabled="@(!success)" Variant="Variant.Filled" Color="Color.Success" OnClick="Ok">
                     OK

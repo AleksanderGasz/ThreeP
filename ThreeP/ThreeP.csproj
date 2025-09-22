@@ -41,7 +41,6 @@
     <ItemGroup>
       <Folder Include="Modules\Todo\Components\" />
       <Folder Include="Modules\Todo\Services\" />
-      <Folder Include="wwwroot\media\files\export\" />
     </ItemGroup>
 
 </Project>

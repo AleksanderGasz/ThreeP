@@ -16,7 +16,9 @@
                      Clearable Step=".1f" />
 </Update>
 
-<MVerticalSpacer/>
+<SectionOutlet SectionId="SearchInGrid"/>
+
+<MVerticalSpacer VerticalSpace="mt-5"/>
 
 <MudGrid>
     @* ITEMS *@
@@ -125,4 +127,7 @@
         ShowResultService.ShowResultMessage(result);
         await GetSets();
     }
+
+
+    public static object? SearchInGrid { get; set; } = new();
 }
