@@ -4,9 +4,61 @@
 @inject ImportExportService<ItemDto> ImportExportService
 @inject ItemsService ItemsService
 
-@* SEARCH *@
-<SectionContent SectionId="ItemsPage.SearchInGrid">
+@* Functions *@
+<SectionContent SectionId="ItemsPage.FunctionsInGrid">
     @* <MVerticalSpacer /> *@
+    <MBox Name="Funkcje" StickyTop StickyOffsetTop="140px" ExpandedDisabled Class="mt-5">
+        <HeaderRight>
+
+            <MudStack Row Justify="Justify.SpaceBetween" Style="width: 80%">
+
+                @* Clone *@
+                <MudButton Disabled="cloneDisabled" Variant="Variant.Outlined" Color="Color.Info" Size="Size.Small"
+                           OnClick="Clone">Klonuj
+                </MudButton>
+
+                @* Update Set *@
+                <MudStack Row>
+                    <MudTextField @bind-Value="SetName" Variant="Variant.Text" Placeholder="Nazwa Setu"
+                                  Class="mt-0 me-2" Required Immediate/>
+
+                    @* Set Buttons *@
+                    @if (EditedSet is not null)
+                    {
+                        <MudButton Color="Color.Error" Variant="Variant.Outlined" Size="Size.Small"
+                                   OnClick="EditSetCancel">
+                            Anuluj
+                        </MudButton>
+                    }
+                    <MudButton Disabled="@(EditedSet is null && string.IsNullOrWhiteSpace(SetName))"
+                               Variant="Variant.Filled" Color="@(EditedSet is null ? Color.Success : Color.Info)"
+                               Size="Size.Small" OnClick="UpdateSet">
+                        @(EditedSet is null ? "Dodaj Set" : "Zatwierdź")
+                    </MudButton>
+                </MudStack>
+
+                @* Import/Export *@
+                <MudStack Row Spacing="2">
+                    <MudIconButton Disabled="@(!Items.Any())" Icon="@Icons.Material.Filled.FileDownload"
+                                   aria-label="Import"
+                                   Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" OnClick="Import">
+                        Import
+                    </MudIconButton>
+                    <MudIconButton Disabled="@(!SelectedItems.Any())" Icon="@Icons.Material.Filled.FileUpload"
+                                   aria-label="Export"
+                                   Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick="Export">Export
+                    </MudIconButton>
+                </MudStack>
+
+                @* Search *@
+                <MudTextField @ref="searchFieldRef" @bind-Value="searchString" Placeholder="wpisz szukaną fraze"
+                              Adornment="Adornment.Start" DebounceInterval="300" 
+                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Clearable
+                              ClearIcon="@Icons.Material.Filled.Clear"/>
+            </MudStack>
+        </HeaderRight>
+    </MBox>
+    @*
     <MBox Name="Szukaj" StickyTop StickyOffsetTop="140px" ExpandedDisabled Class="mt-5">
         <HeaderRight>
             <MudTextField @ref="searchFieldRef" @bind-Value="searchString" Placeholder="wpisz szukaną fraze"
@@ -16,6 +68,7 @@
                           ClearIcon="@Icons.Material.Filled.Clear"></MudTextField>
         </HeaderRight>
     </MBox>
+*@
 </SectionContent>
 
 @if (Items?.Any() == false)
@@ -37,38 +90,7 @@ else
 
             <MudSpacer/>
 
-            @* Update Set *@
-            <MudStack Row Class="me-8">
-                <MudTextField @bind-Value="SetName" Variant="Variant.Text" Placeholder="Nazwa Setu"
-                              Class="mt-0 me-2" Required Immediate/>
 
-                @* Set Buttons *@
-                @if (EditedSet is not null)
-                {
-                    <MudButton Color="Color.Error" Variant="Variant.Outlined" Size="Size.Small"
-                               OnClick="EditSetCancel">
-                        Anuluj
-                    </MudButton>
-                }
-                <MudButton Disabled="@(EditedSet is null && string.IsNullOrWhiteSpace(SetName))"
-                           Variant="Variant.Filled" Color="@(EditedSet is null ? Color.Success : Color.Info)"
-                           Size="Size.Small" OnClick="UpdateSet">
-                    @(EditedSet is null ? "Dodaj Set" : "Zatwierdź")
-                </MudButton>
-            </MudStack>
-
-            @* Import/Export *@
-            <MudStack Row Spacing="2">
-                <MudIconButton Disabled="@(!Items.Any())" Icon="@Icons.Material.Filled.FileDownload"
-                               aria-label="Import"
-                               Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" OnClick="Import">
-                    Import
-                </MudIconButton>
-                <MudIconButton Disabled="@(!SelectedItems.Any())" Icon="@Icons.Material.Filled.FileUpload"
-                               aria-label="Export"
-                               Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick="Export">Export
-                </MudIconButton>
-            </MudStack>
         </ToolBarContent>
 
         @* COLUMNS *@
@@ -117,6 +139,7 @@ else
     [Parameter] public EventCallback OnReload { get; set; }
     [Parameter] public EventCallback<HashSet<Item>> SelectedItemsChanged { get; set; }
     [Parameter] public EventCallback OnEditSetCancel { get; set; }
+    [Parameter] public EventCallback<Item> OnCloneCreated { get; set; }
     [Parameter] public HashSet<Item>? SelectedItems { get; set; }
     [Parameter] [EditorRequired] public List<Item>? Items { get; set; }
     [Parameter] public Set? EditedSet { get; set; }
@@ -125,6 +148,7 @@ else
     MudTextField<string>? searchFieldRef;
     MudForm? setForm;
     string? searchString;
+    bool cloneDisabled => !SelectedItems.Any();
     string? SetName
     {
         get => EditedSet?.Name ?? field;
@@ -241,6 +265,21 @@ else
         // StateHasChanged();
         return setForm.IsValid;
     }*/
+    async Task Clone()
+    {
+        var clone = new Item
+        {
+            Id = Guid.CreateVersion7(),
+            UserId = SelectedItems.FirstOrDefault().UserId,
+            Name = SelectedItems.FirstOrDefault().Name + " kopia",
+            Description = SelectedItems.FirstOrDefault().Description,
+            Weight = SelectedItems.FirstOrDefault().Weight,
+            Sets = [],
+        };
+
+        // await OnCloneCreated.InvokeAsync(clone);
+        await OnEdit.InvokeAsync((clone, true));
+    }
 
 
     Func<Item, bool> Search => x =>
@@ -253,7 +292,6 @@ else
     };
 
 
-    public async Task SearchShortcut()=>await searchFieldRef.FocusAsync();
+    public async Task SearchShortcut() => await searchFieldRef.FocusAsync();
     async Task ReloadItems() => await OnReload.InvokeAsync();
-
-    }
+}

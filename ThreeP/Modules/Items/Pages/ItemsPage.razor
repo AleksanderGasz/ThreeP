@@ -18,7 +18,7 @@
                          Clearable Step=".1f"/>
     </Update>
 
-    <SectionOutlet SectionId="SearchInGrid"/>
+    <SectionOutlet SectionId="FunctionsInGrid"/>
 
     <MVerticalSpacer VerticalSpace="mt-5"/>
 
@@ -29,7 +29,7 @@
             @* Items *@
             <ItemsGrid @ref="itemsGridRef" Items="Items" @bind-SelectedItems="selectedItems" EditedSet="@editedSet"
                        OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"
-                       OnEditSetCancel="CancelEditSet"
+                       OnEditSetCancel="CancelEditSet" 
             />
             @* <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" SetName="@setName" EditetedSet="@editedSet" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/> *@
         </MudItem>
@@ -52,7 +52,7 @@
     ElementReference wrapper;
     string? pressedShortcut;
     ItemsGrid? itemsGridRef;
-    public static object? SearchInGrid { get; set; } = new();
+    public static object? FunctionsInGrid { get; set; } = new();
     
 
     protected override async Task OnInitializedAsync()
@@ -148,4 +148,10 @@
         editedSet = null;
         selectedItems = new();
     }
+
+
+    /*async Task CreateClone(Item? arg)
+    {
+        var resuItemsService.UpsertItem(arg);
+    }*/
 }
