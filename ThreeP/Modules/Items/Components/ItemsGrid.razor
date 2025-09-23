@@ -4,17 +4,16 @@
 @inject ImportExportService<ItemDto> ImportExportService
 @inject ItemsService ItemsService
 
+@* SEARCH *@
 <SectionContent SectionId="ItemsPage.SearchInGrid">
     @* <MVerticalSpacer /> *@
-    
-    @* SEARCH *@
-    <MBox Name="Szukaj" StickyTop  StickyOffsetTop="140px" ExpandedDisabled Class="mt-5">
+    <MBox Name="Szukaj" StickyTop StickyOffsetTop="140px" ExpandedDisabled Class="mt-5">
         <HeaderRight>
-            <MudTextField @bind-Value="searchString" Placeholder="wpisz szukaną fraze" Adornment="Adornment.Start" Immediate="true"
+            <MudTextField @bind-Value="searchString" Placeholder="wpisz szukaną fraze" Adornment="Adornment.Start"
+                          Immediate="true"
                           AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Clearable
                           ClearIcon="@Icons.Material.Filled.Clear"></MudTextField>
         </HeaderRight>
-
     </MBox>
 </SectionContent>
 
@@ -26,7 +25,8 @@ else
 {
     <MudDataGrid T="Item" Items="Items" Elevation="GlobalStyles.Elevation" MultiSelection
                  Filterable QuickFilter="@Search" FixedHeader
-                 @bind-SelectedItems="SelectedItems">
+                 @bind-SelectedItems="SelectedItems"
+                 Style="@(EditedSet is not null?"border: 1px solid var(--mud-palette-info)":"")">
 
         @* TOOLBAR *@
         <ToolBarContent>
@@ -62,10 +62,10 @@ else
 
             @* Import/Export *@
             <MudStack Row Spacing="2">
-                <MudIconButton Disabled="!Items.Any()" Icon="@Icons.Material.Filled.FileDownload" aria-label="Import"
+                <MudIconButton Disabled="@(!Items.Any())" Icon="@Icons.Material.Filled.FileDownload" aria-label="Import"
                                Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" OnClick="Import">Import
                 </MudIconButton>
-                <MudIconButton Disabled="!SelectedItems.Any()" Icon="@Icons.Material.Filled.FileUpload"
+                <MudIconButton Disabled="@(!SelectedItems.Any())" Icon="@Icons.Material.Filled.FileUpload"
                                aria-label="Export"
                                Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick="Export">Export
                 </MudIconButton>
@@ -123,6 +123,7 @@ else
     [Parameter] public List<Item>? Items { get; set; }
     [Parameter] public Set? EditedSet { get; set; }
 
+    MudTheme Theme = new();
     bool updateButtonDisabled = true;
     MudForm? setForm;
     string? searchString;

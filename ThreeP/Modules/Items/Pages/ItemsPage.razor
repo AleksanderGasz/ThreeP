@@ -20,14 +20,16 @@
 
 <MVerticalSpacer VerticalSpace="mt-5"/>
 
+
+@* GRIDS *@
 <MudGrid>
-    @* ITEMS *@
+    @* Items *@
     <MudItem md="6">
         <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" EditedSet="@editedSet" OnEdit="EditItem"
                    OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/>
         @* <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" SetName="@setName" EditetedSet="@editedSet" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/> *@
     </MudItem>
-    @* SETS *@
+    @* Sets*@
     <MudItem md="6">
         <SetsGrid Sets="Sets" OnEdit="EditSet" OnDelete="DeleteSet"/>
     </MudItem>
