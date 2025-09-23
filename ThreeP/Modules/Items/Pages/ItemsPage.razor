@@ -7,45 +7,53 @@
 
 @* <ItemUpdate Item="item" ItemChanged="UpdateItem"/> *@
 @* <MVerticalSpacer/> *@
+<div @ref="wrapper" tabindex="0" @onkeydown="SearchShortcut">
 
-@* UPDATE *@
-<Update T="Item" Titem="titem" ItemChanged="(arg)=>UpdateItem(arg)">
-    <MudTextField @bind-Value="@context?.Name" Label="Nazwa" Variant="Variant.Outlined" Required Clearable/>
-    <MudTextField @bind-Value="@context?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
-    <MudNumericField T="float?" @bind-Value="@context?.Weight" Format="N2" Label="Waga" Variant="Variant.Outlined" AdornmentText="Kg" 
-                     Clearable Step=".1f" />
-</Update>
+    @* UPDATE *@
+    <Update T="Item" Titem="titem" ItemChanged="(arg)=>UpdateItem(arg)">
+        <MudTextField @bind-Value="@context?.Name" Label="Nazwa" Variant="Variant.Outlined" Required Clearable/>
+        <MudTextField @bind-Value="@context?.Description" Label="Opis" Variant="Variant.Outlined" Lines="3" Clearable/>
+        <MudNumericField T="float?" @bind-Value="@context?.Weight" Format="N2" Label="Waga" Variant="Variant.Outlined"
+                         AdornmentText="Kg"
+                         Clearable Step=".1f"/>
+    </Update>
 
-<SectionOutlet SectionId="SearchInGrid"/>
+    <SectionOutlet SectionId="SearchInGrid"/>
 
-<MVerticalSpacer VerticalSpace="mt-5"/>
+    <MVerticalSpacer VerticalSpace="mt-5"/>
 
 
-@* GRIDS *@
-<MudGrid>
-    @* Items *@
-    <MudItem md="6">
-        <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" EditedSet="@editedSet" OnEdit="EditItem"
-                   OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/>
-        @* <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" SetName="@setName" EditetedSet="@editedSet" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/> *@
-    </MudItem>
-    @* Sets*@
-    <MudItem md="6">
-        <SetsGrid Sets="Sets" OnEdit="EditSet" OnDelete="DeleteSet"/>
-    </MudItem>
-</MudGrid>
-
+    @* GRIDS *@
+    <MudGrid>
+        <MudItem md="6">
+            @* Items *@
+            <ItemsGrid @ref="itemsGridRef" Items="Items" @bind-SelectedItems="selectedItems" EditedSet="@editedSet"
+                       OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"
+                       OnEditSetCancel="CancelEditSet"
+            />
+            @* <ItemsGrid Items="Items" @bind-SelectedItems="selectedItems" SetName="@setName" EditetedSet="@editedSet" OnEdit="EditItem" OnDelete="DeleteItem" OnSetCreating="UpdateSet" OnReload="GetItems"/> *@
+        </MudItem>
+        <MudItem md="6">
+            @* Sets*@
+            <SetsGrid Sets="Sets" OnEdit="EditSet" OnDelete="DeleteSet"/>
+        </MudItem>
+    </MudGrid>
+</div>
 
 @code {
     [CascadingParameter] public AppState AppState { get; set; }
     Guid userId => AppState.UserId;
     [PersistentState] public List<Item>? Items { get; set; }
     [PersistentState] public List<Set>? Sets { get; set; } = [];
-    (Item? item, bool isNew)titem;
+    (Item? item, bool isNew) titem;
     HashSet<Item> selectedItems = [];
     string? setName;
     Set? editedSet;
-
+    ElementReference wrapper;
+    string? pressedShortcut;
+    ItemsGrid? itemsGridRef;
+    public static object? SearchInGrid { get; set; } = new();
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,17 +62,25 @@
     }
 
 
-// ITEMS
-    // async Task GetItems() => Items = await ItemsService.Get([x => x.Sets], filters: [x => x.UserId == userId]);
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await wrapper.FocusAsync();
+        }
+    }
+
+
+    // ITEMS
     async Task GetItems() => Items = await ItemsService.Get(filters: [x => x.UserId == userId]);
 
 
-    async Task EditItem((Item? item,bool isNew) arg) => titem = arg;
+    async Task EditItem((Item? item, bool isNew) arg) => titem = arg;
 
 
     async Task UpdateItem((Item? item, bool isNew) arg)
     {
-        if (arg.item is null)return;
+        if (arg.item is null) return;
         titem = arg;
         titem.item.UserId = userId;
         var result = await ItemsService.UpsertItem(titem.item);
@@ -83,7 +99,6 @@
 
 
     // SETS
-    // async Task GetSets() => Sets = await SetService.Get([x=>x.Items],[x => x.UserId == userId]);
     async Task GetSets() => Sets = await SetService.Get([x => x.Items], filters: [x => x.UserId == userId]);
 
 
@@ -98,7 +113,7 @@
             editedSet = null;
             selectedItems = [];
         }
-        
+
         await GetSets();
     }
 
@@ -108,18 +123,6 @@
         var ids = arg.Items.Select(x => x.Id).ToHashSet() ?? [];
         selectedItems = Items.Where(x => ids.Contains(x.Id)).ToHashSet() ?? [];
         editedSet = arg;
-        // setName=arg.Name;
-        // selectedItems = arg.Items != null ? arg.Items.ToHashSet() : [];
-        // StateHasChanged();
-
-
-        // var result = await SetService.UpdateSet(arg);
-        // arg.Items = selectedItems;
-        /*var result = await SetService.UpdateSet(arg);
-        ShowResultService.ShowResultMessage(result);
-        await GetSets();
-    */
-        // await UpdateSet(arg);
     }
 
 
@@ -131,5 +134,18 @@
     }
 
 
-    public static object? SearchInGrid { get; set; } = new();
+    async Task SearchShortcut(KeyboardEventArgs arg)
+    {
+        if ((arg.CtrlKey || arg.MetaKey) && arg.Key == "/")
+        {
+            if (itemsGridRef is not null) await itemsGridRef.SearchShortcut();
+        }
+    }
+
+
+    async Task CancelEditSet()
+    {
+        editedSet = null;
+        selectedItems = new();
+    }
 }

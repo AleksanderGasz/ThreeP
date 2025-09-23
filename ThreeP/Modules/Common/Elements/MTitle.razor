@@ -1,14 +1,25 @@
 ﻿@namespace Mac.Modules.Elements
 <MudElement HtmlTag="div" Class="d-flex align-center">
-    <MudText Typo="@Typo" Color="@Color" Class="@($"{Class}")" Style="@($"{OwnStyle} {Style})")">@Name</MudText>
+    <MudText Typo="@(Typo??MudBlazor.Typo.inherit)"  Class="@classBuilder" Color="@(Color??MudBlazor.Color.Default)" Style="@styleBuilder">@Name</MudText>
 </MudElement>
 
 @code {
     [Parameter] public string? Name { get; set; }
-    [Parameter] public Typo Typo { get; set; } = GlobalStyles.HeaderTypo;
-    [Parameter] public Color Color { get; set; } = GlobalStyles.TextColor;
+    [Parameter] public Typo? Typo { get; set; } = GlobalStyles.HeaderTypo;
+    [Parameter] public Color? Color { get; set; } = GlobalStyles.TextColor;
     [Parameter] public bool Uppercase { get; set; }
     [Parameter] public string? Class { get; set; }
+
     [Parameter] public string? Style { get; set; }
-    string OwnStyle => $" {(Uppercase ? "text-transform: uppercase;" : "")}";
+
+    string classBuilder => new CssBuilder()
+        .AddClass(Class)
+        .Build();
+
+    string styleBuilder => new StyleBuilder()
+        .AddStyle("text-transform: uppercase;", Uppercase)
+        .AddStyle(Style)
+        .Build();
+
+
 }

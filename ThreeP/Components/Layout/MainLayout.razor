@@ -2,7 +2,7 @@
 @inject ProgressService ProgressService
 @implements IDisposable
 
-<MudThemeProvider IsDarkMode="@(AppState?.Settings?.DarkMode ?? true)"/>
+<MudThemeProvider  IsDarkMode="@(AppState?.Settings?.DarkMode ?? true)"/>
 <MudPopoverProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
@@ -55,9 +55,9 @@
         </MudContainer>
 
     </MudMainContent>
-            <MudScrollToTop TopOffset="50" >
-                <MudFab Color="Color.Warning" StartIcon="@Icons.Material.Filled.ArrowUpward"/>
-            </MudScrollToTop>
+    <MudScrollToTop TopOffset="50">
+        <MudFab Color="Color.Warning" StartIcon="@Icons.Material.Filled.ArrowUpward"/>
+    </MudScrollToTop>
 
 </MudLayout>
 
@@ -88,4 +88,46 @@
 
 
     public void Dispose() => ProgressService.OnProgressChanged -= StateHasChanged;
+
+    /*
+    MudTheme Theme { get; } = CreateTheme();
+
+    static MudTheme CreateTheme()
+    {
+        var baseTheme = new MudTheme(); // domyślne wartości MudBlazor
+        var light = baseTheme.PaletteLight;
+        var dark = baseTheme.PaletteDark;
+
+        return new MudTheme
+        {
+            // ZMIANA: zamiana Primary ↔ Warning (LIGHT)
+            PaletteLight = new PaletteLight
+            {
+                Primary = light.Warning,
+                PrimaryDarken = light.WarningDarken,
+                PrimaryLighten = light.WarningLighten,
+                PrimaryContrastText = light.WarningContrastText,
+
+                Warning = light.Primary,
+                WarningDarken = light.PrimaryDarken,
+                WarningLighten = light.PrimaryLighten,
+                WarningContrastText = light.PrimaryContrastText
+            },
+
+            // ZMIANA: zamiana Primary ↔ Warning (DARK)
+            PaletteDark = new PaletteDark
+            {
+                Primary = dark.Warning,
+                PrimaryDarken = dark.WarningDarken,
+                PrimaryLighten = dark.WarningLighten,
+                PrimaryContrastText = dark.WarningContrastText,
+
+                Warning = dark.Primary,
+                WarningDarken = dark.PrimaryDarken,
+                WarningLighten = dark.PrimaryLighten,
+                WarningContrastText = dark.PrimaryContrastText
+            }
+        };
+    }
+*/
 }

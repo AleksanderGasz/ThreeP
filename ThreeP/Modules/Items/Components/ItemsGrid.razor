@@ -9,8 +9,9 @@
     @* <MVerticalSpacer /> *@
     <MBox Name="Szukaj" StickyTop StickyOffsetTop="140px" ExpandedDisabled Class="mt-5">
         <HeaderRight>
-            <MudTextField @bind-Value="searchString" Placeholder="wpisz szukaną fraze" Adornment="Adornment.Start"
-                          Immediate="true"
+            <MudTextField @ref="searchFieldRef" @bind-Value="searchString" Placeholder="wpisz szukaną fraze"
+                          Adornment="Adornment.Start"
+                          DebounceInterval="300"
                           AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Clearable
                           ClearIcon="@Icons.Material.Filled.Clear"></MudTextField>
         </HeaderRight>
@@ -23,21 +24,16 @@
 }
 else
 {
+    // DATAGRID
     <MudDataGrid T="Item" Items="Items" Elevation="GlobalStyles.Elevation" MultiSelection
                  Filterable QuickFilter="@Search" FixedHeader
                  @bind-SelectedItems="SelectedItems"
-                 Style="@(EditedSet is not null?"border: 1px solid var(--mud-palette-info)":"")">
+                 Style="@(EditedSet is not null ? "border: 1px solid var(--mud-palette-info)" : "")">
 
         @* TOOLBAR *@
         <ToolBarContent>
             @* <MudText Color="Color.Warning">Przedmioty</MudText> *@
             <MTitle Name="Wyposażenie"/>
-
-            @* Search *@
-            @*<MudTextField @bind-Value="searchString" Placeholder="Szukaj" Adornment="Adornment.Start" Immediate="true"
-                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Clearable
-                          ClearIcon="@Icons.Material.Filled.Clear"
-                          Class="mt-0 ms-3"></MudTextField>*@
 
             <MudSpacer/>
 
@@ -46,13 +42,14 @@ else
                 <MudTextField @bind-Value="SetName" Variant="Variant.Text" Placeholder="Nazwa Setu"
                               Class="mt-0 me-2" Required Immediate/>
 
+                @* Set Buttons *@
                 @if (EditedSet is not null)
                 {
-                    <MudButton Color="Color.Error" Variant="Variant.Outlined" Size="Size.Small" OnClick="EditSetCancel">
+                    <MudButton Color="Color.Error" Variant="Variant.Outlined" Size="Size.Small"
+                               OnClick="EditSetCancel">
                         Anuluj
                     </MudButton>
                 }
-                @* <MudButton Disabled="@(setForm.IsValid)" Variant="Variant.Filled" *@
                 <MudButton Disabled="@(EditedSet is null && string.IsNullOrWhiteSpace(SetName))"
                            Variant="Variant.Filled" Color="@(EditedSet is null ? Color.Success : Color.Info)"
                            Size="Size.Small" OnClick="UpdateSet">
@@ -62,16 +59,18 @@ else
 
             @* Import/Export *@
             <MudStack Row Spacing="2">
-                <MudIconButton Disabled="@(!Items.Any())" Icon="@Icons.Material.Filled.FileDownload" aria-label="Import"
-                               Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" OnClick="Import">Import
+                <MudIconButton Disabled="@(!Items.Any())" Icon="@Icons.Material.Filled.FileDownload"
+                               aria-label="Import"
+                               Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" OnClick="Import">
+                    Import
                 </MudIconButton>
                 <MudIconButton Disabled="@(!SelectedItems.Any())" Icon="@Icons.Material.Filled.FileUpload"
                                aria-label="Export"
                                Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick="Export">Export
                 </MudIconButton>
             </MudStack>
-
         </ToolBarContent>
+
         @* COLUMNS *@
         <Columns>
             @* <HierarchyColumn T="Item" /> *@
@@ -84,8 +83,6 @@ else
                     </div>
                 </CellTemplate>
             </TemplateColumn>
-            @* <PropertyColumn Property="x => x.Name" Title="Nazwa"/> *@
-            @* <PropertyColumn Property="x => x.Description" Title="Opis"/> *@
             <PropertyColumn Property="x => x.Weight" Title="Waga"/>
 
             @* ACTIONS *@
@@ -119,12 +116,13 @@ else
     [Parameter] public EventCallback<Set> OnSetCreating { get; set; }
     [Parameter] public EventCallback OnReload { get; set; }
     [Parameter] public EventCallback<HashSet<Item>> SelectedItemsChanged { get; set; }
+    [Parameter] public EventCallback OnEditSetCancel { get; set; }
     [Parameter] public HashSet<Item>? SelectedItems { get; set; }
-    [Parameter] public List<Item>? Items { get; set; }
+    [Parameter] [EditorRequired] public List<Item>? Items { get; set; }
     [Parameter] public Set? EditedSet { get; set; }
 
-    MudTheme Theme = new();
     bool updateButtonDisabled = true;
+    MudTextField<string>? searchFieldRef;
     MudForm? setForm;
     string? searchString;
     string? SetName
@@ -184,10 +182,11 @@ else
     async Task EditSetCancel()
     {
         EditedSet = null;
-        var empty = new HashSet<Item>();
+        // var empty = new HashSet<Item>();
         // SelectedItems = empty;
         SelectedItems.Clear();
-        // await SelectedItemsChanged.InvokeAsync(empty);
+        await SelectedItemsChanged.InvokeAsync(SelectedItems);
+        if (OnEditSetCancel.HasDelegate) await OnEditSetCancel.InvokeAsync();
         // SetName=string.Empty;
         // StateHasChanged();
     }
@@ -254,5 +253,7 @@ else
     };
 
 
+    public async Task SearchShortcut()=>await searchFieldRef.FocusAsync();
     async Task ReloadItems() => await OnReload.InvokeAsync();
-}
+
+    }

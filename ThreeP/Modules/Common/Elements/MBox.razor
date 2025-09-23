@@ -4,7 +4,7 @@
 <MudPaper Elevation="GlobalStyles.Elevation" Class="@ClassBuilder" Style="@StyleBuilder"
           @ondblclick="@(async _ => await OnDoubleClick.InvokeAsync())">
     <MudStack Row Justify="Justify.SpaceBetween">
-        <MTitle Name="@Name" Color="@Color" Typo="Typo"/>
+        <MTitle Name="@Name"  Typo="@(Typo??MudBlazor.Typo.inherit)" Color="@(Color??MudBlazor.Color.Default)"/>
         <MudSpacer/>
         @if (HeaderRight is not null)
         {
@@ -32,18 +32,18 @@
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public bool ExpandedDisabled { get; set; }
     [Parameter] public string? Name { get; set; }
-    [Parameter] public Typo Typo { get; set; } = GlobalStyles.HeaderTypo;
-    [Parameter] public Color Color { get; set; } = GlobalStyles.TextColor;
+    [Parameter] public Typo? Typo { get; set; } = GlobalStyles.HeaderTypo;
+    [Parameter] public Color? Color { get; set; } = GlobalStyles.TextColor;
     [Parameter] public bool Expanded { get; set; }
     [Parameter] public bool StickyTop { get; set; }
     [Parameter] public string? StickyOffsetTop { get; set; } = "0";
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Styles { get; set; }
 
+
     string? ClassBuilder => new CssBuilder()
         .AddClass(Class, !string.IsNullOrWhiteSpace(Class))
         .AddClass("pa-4")
-        // .AddClass("mud-appbar-fixed-top")
         .Build();
 
     string? StyleBuilder => new StyleBuilder()
