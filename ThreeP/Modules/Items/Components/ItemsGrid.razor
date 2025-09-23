@@ -10,14 +10,34 @@
     <MBox Name="Funkcje" StickyTop StickyOffsetTop="140px" ExpandedDisabled Class="mt-5">
         <HeaderRight>
 
-            <MudStack Row Justify="Justify.SpaceBetween" Style="width: 80%">
+            @* <MudStack Row Justify="Justify.SpaceEvenly" Style="width: 80%"> *@
 
                 @* Clone *@
                 <MudButton Disabled="cloneDisabled" Variant="Variant.Outlined" Color="Color.Info" Size="Size.Small"
                            OnClick="Clone">Klonuj
                 </MudButton>
 
+
+                @* Import/Export *@
+                <MudPaper Outlined  Class="pa-2">
+
+                    <MudStack Row Spacing="2">
+                        <MudIconButton Disabled="@(!Items.Any())" Icon="@Icons.Material.Filled.FileDownload"
+                                       aria-label="Import"
+                                       Variant="Variant.Outlined" Color="Color.Info" Size="Size.Small" OnClick="Import">
+                            Import
+                        </MudIconButton>
+                        <MudIconButton Disabled="@(!SelectedItems.Any())" Icon="@Icons.Material.Filled.FileUpload"
+                                       aria-label="Export"
+                                       Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small"
+                                       OnClick="Export">Export
+                        </MudIconButton>
+                    </MudStack>
+                </MudPaper>
+
                 @* Update Set *@
+                <MudPaper Outlined  Class="pa-2">
+                
                 <MudStack Row>
                     <MudTextField @bind-Value="SetName" Variant="Variant.Text" Placeholder="Nazwa Setu"
                                   Class="mt-0 me-2" Required Immediate/>
@@ -36,26 +56,20 @@
                         @(EditedSet is null ? "Dodaj Set" : "Zatwierdź")
                     </MudButton>
                 </MudStack>
+                </MudPaper>
 
-                @* Import/Export *@
-                <MudStack Row Spacing="2">
-                    <MudIconButton Disabled="@(!Items.Any())" Icon="@Icons.Material.Filled.FileDownload"
-                                   aria-label="Import"
-                                   Variant="Variant.Filled" Color="Color.Error" Size="Size.Small" OnClick="Import">
-                        Import
-                    </MudIconButton>
-                    <MudIconButton Disabled="@(!SelectedItems.Any())" Icon="@Icons.Material.Filled.FileUpload"
-                                   aria-label="Export"
-                                   Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick="Export">Export
-                    </MudIconButton>
-                </MudStack>
+
 
                 @* Search *@
+                <MudPaper Outlined  Class="pa-2" Style="width: 50%">
+                
                 <MudTextField @ref="searchFieldRef" @bind-Value="searchString" Placeholder="wpisz szukaną fraze"
-                              Adornment="Adornment.Start" DebounceInterval="300" 
+                               Variant="Variant.Text" Adornment="Adornment.Start" DebounceInterval="300"
                               AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Clearable
                               ClearIcon="@Icons.Material.Filled.Clear"/>
-            </MudStack>
+                </MudPaper>
+                
+            @* </MudStack> *@
         </HeaderRight>
     </MBox>
     @*
