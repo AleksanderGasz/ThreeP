@@ -12,10 +12,12 @@
 
             @* <MudStack Row Justify="Justify.SpaceEvenly" Style="width: 80%"> *@
 
-                @* Clone *@
-                <MudButton Disabled="cloneDisabled" Variant="Variant.Outlined" Color="Color.Info" Size="Size.Small"
-                           OnClick="Clone">Klonuj
+            @* Clone *@
+            <MudPaper Outlined  Class="pa-2" Style="max-width: 30%;">
+                <MudButton Disabled="cloneDisabled" Variant="Variant.Outlined" Color="Color.Info" Size="Size.Small" 
+                           OnClick="Clone">@($"Klonuj {SelectedItems?.FirstOrDefault()?.Name}")
                 </MudButton>
+            </MudPaper>
 
 
                 @* Import/Export *@
